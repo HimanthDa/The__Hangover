@@ -469,6 +469,117 @@ body {
   color: var(--color-wine-dark);
 }
 
+.home-section {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-border, #e8e0e0);
+}
+
+.home-section:first-of-type {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.home-section-chips {
+  justify-content: flex-start;
+  margin: 0 0 1.25rem;
+}
+
+.home-section-chips a {
+  background: rgba(114, 47, 55, 0.08);
+  color: var(--color-wine);
+}
+
+.home-section-chips a:hover {
+  background: var(--color-wine);
+  color: var(--color-white);
+}
+
+/* Adult wines section gate */
+.home-section--adult {
+  position: relative;
+}
+
+.wines-locked {
+  padding: 2.5rem 1.5rem;
+  border: 2px dashed rgba(114, 47, 55, 0.35);
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(114, 47, 55, 0.06), rgba(201, 162, 39, 0.08));
+  text-align: center;
+}
+
+.wines-locked-inner {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.wines-locked-badge {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: var(--color-wine);
+  color: var(--color-white);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.age-gate-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.age-gate-modal[hidden] {
+  display: none;
+}
+
+.age-gate-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(44, 44, 44, 0.65);
+}
+
+.age-gate-dialog {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  padding: 2rem 1.75rem;
+  border-radius: var(--radius);
+  background: var(--color-white);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+  text-align: center;
+}
+
+.age-gate-title {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--color-wine-dark);
+}
+
+.age-gate-text {
+  margin: 0 0 1.5rem;
+  color: var(--color-text-muted);
+}
+
+.age-gate-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+body.age-gate-open {
+  overflow: hidden;
+}
+
 /* Content prose (about, history pages) */
 .content-prose {
   max-width: 720px;

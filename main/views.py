@@ -4,16 +4,30 @@ Views for main pages: Home, About, Contact, Drink History, Wine History.
 
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from products.models import Product, Category
+from products.models import Product
 
 
 def home(request):
-    """Home page with banner, featured drinks, and categories."""
-    featured = Product.objects.filter(featured=True, in_stock=True)[:8]
-    categories = Category.objects.all()
+    """Home page with banner and grouped drink sections."""
+    tea_coffee_products = Product.objects.filter(
+        in_stock=True,
+        category__slug__in=['tea', 'coffee', 'teas', 'coffees'],
+    ).select_related('category').order_by('-featured', 'name')
+
+    soft_cold_products = Product.objects.filter(
+        in_stock=True,
+        category__slug__in=['soft-drinks', 'cold-drinks'],
+    ).select_related('category').order_by('-featured', 'name')
+
+    wine_products = Product.objects.filter(
+        in_stock=True,
+        category__slug='wines',
+    ).select_related('category').order_by('-featured', 'name')
+
     return render(request, 'main/home.html', {
-        'featured': featured,
-        'categories': categories,
+        'tea_coffee_products': tea_coffee_products,
+        'soft_cold_products': soft_cold_products,
+        'wine_products': wine_products,
     })
 
 

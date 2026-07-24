@@ -8,11 +8,11 @@
 <section class="hero">
   <div class="container">
     <h1>The Hangover</h1>
-    <p>Discover cold drinks, soft drinks, and fine wines. Learn their history, explore brands, and shop online.</p>
+    <p>Discover teas, coffees, cold drinks, soft drinks, and fine wines. Learn their history, explore brands, and shop online.</p>
     <div class="category-chips">
-      <a href="{% url 'products:list_by_category' category_slug='cold-drinks' %}">Cold Drinks</a>
-      <a href="{% url 'products:list_by_category' category_slug='soft-drinks' %}">Soft Drinks</a>
-      <a href="{% url 'products:list_by_category' category_slug='wines' %}">Wines</a>
+      <a href="#teas-coffees">Teas & Coffees</a>
+      <a href="#soft-cold-drinks">Soft & Cold Drinks</a>
+      <a href="#wines" class="wines-section-link" data-adult-trigger>Wines</a>
       <a href="{% url 'main:drink_history' %}">Drink History</a>
       <a href="{% url 'main:wine_history' %}">Wine History</a>
     </div>
@@ -23,71 +23,159 @@
 </section>
 
 <div class="container">
-  <!-- Featured drinks -->
-  <h2 class="section-title">Featured Drinks</h2>
-  {% if featured %}
-  <div class="product-grid">
-    {% for product in featured %}
-    <article class="product-card">
-      <a href="{% url 'products:detail' product.slug %}">
-        {% if product.image_url %}
-          <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-card-image">
-        {% else %}
-          <div class="product-card-image" style="display:flex;align-items:center;justify-content:center;color:#999;">No image</div>
-        {% endif %}
-      </a>
-      <div class="product-card-body">
-        <a href="{% url 'products:detail' product.slug %}" style="text-decoration:none;color:inherit;">
-          <h3 class="product-card-title">{{ product.name }}</h3>
-          <p class="product-card-brand">{{ product.brand }}</p>
-          <p class="product-card-desc">{{ product.description }}</p>
+  <!-- Teas & Coffees -->
+  <section id="teas-coffees" class="home-section">
+    <h2 class="section-title">Teas & Coffees</h2>
+    <p class="page-subtitle">Hot and iced teas, premium coffee beans, and brewed coffee.</p>
+    <div class="category-chips home-section-chips">
+      <a href="{% url 'products:list_by_category' category_slug='tea' %}">Tea</a>
+      <a href="{% url 'products:list_by_category' category_slug='coffee' %}">Coffee</a>
+    </div>
+    {% if tea_coffee_products %}
+    <div class="product-grid">
+      {% for product in tea_coffee_products %}
+      <article class="product-card">
+        <a href="{% url 'products:detail' product.slug %}">
+          {% if product.image_url %}
+            <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-card-image">
+          {% else %}
+            <div class="product-card-image" style="display:flex;align-items:center;justify-content:center;color:#999;">No image</div>
+          {% endif %}
         </a>
-        <p class="product-card-price">₹{{ product.price }}{% if product.volume %} · {{ product.volume }}{% endif %}</p>
-        <div class="product-card-actions">
-          <form action="{% url 'cart:add' product.id %}" method="post" style="display:flex;align-items:center;gap:0.5rem;">
-            {% csrf_token %}
-            <input type="number" name="quantity" value="1" min="1" class="quantity-input" aria-label="Quantity">
-            <input type="hidden" name="next" value="{{ request.get_full_path }}">
-            <button type="submit" class="btn btn-primary">Add to Cart</button>
-          </form>
+        <div class="product-card-body">
+          <a href="{% url 'products:detail' product.slug %}" style="text-decoration:none;color:inherit;">
+            <h3 class="product-card-title">{{ product.name }}</h3>
+            <p class="product-card-brand">{{ product.brand }}</p>
+            <p class="product-card-desc">{{ product.description }}</p>
+          </a>
+          <p class="product-card-price">₹{{ product.price }}{% if product.volume %} · {{ product.volume }}{% endif %}</p>
+          <div class="product-card-actions">
+            <form action="{% url 'cart:add' product.id %}" method="post" style="display:flex;align-items:center;gap:0.5rem;">
+              {% csrf_token %}
+              <input type="number" name="quantity" value="1" min="1" class="quantity-input" aria-label="Quantity">
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <button type="submit" class="btn btn-primary">Add to Cart</button>
+            </form>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty-state">No teas or coffees available yet.</p>
+    {% endif %}
+  </section>
+
+  <!-- Soft Drinks & Cold Drinks -->
+  <section id="soft-cold-drinks" class="home-section">
+    <h2 class="section-title">Soft Drinks & Cold Drinks</h2>
+    <p class="page-subtitle">Carbonated sodas, chilled beverages, and refreshing coolers.</p>
+    <div class="category-chips home-section-chips">
+      <a href="{% url 'products:list_by_category' category_slug='soft-drinks' %}">Soft Drinks</a>
+      <a href="{% url 'products:list_by_category' category_slug='cold-drinks' %}">Cold Drinks</a>
+    </div>
+    {% if soft_cold_products %}
+    <div class="product-grid">
+      {% for product in soft_cold_products %}
+      <article class="product-card">
+        <a href="{% url 'products:detail' product.slug %}">
+          {% if product.image_url %}
+            <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-card-image">
+          {% else %}
+            <div class="product-card-image" style="display:flex;align-items:center;justify-content:center;color:#999;">No image</div>
+          {% endif %}
+        </a>
+        <div class="product-card-body">
+          <a href="{% url 'products:detail' product.slug %}" style="text-decoration:none;color:inherit;">
+            <h3 class="product-card-title">{{ product.name }}</h3>
+            <p class="product-card-brand">{{ product.brand }}</p>
+            <p class="product-card-desc">{{ product.description }}</p>
+          </a>
+          <p class="product-card-price">₹{{ product.price }}{% if product.volume %} · {{ product.volume }}{% endif %}</p>
+          <div class="product-card-actions">
+            <form action="{% url 'cart:add' product.id %}" method="post" style="display:flex;align-items:center;gap:0.5rem;">
+              {% csrf_token %}
+              <input type="number" name="quantity" value="1" min="1" class="quantity-input" aria-label="Quantity">
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <button type="submit" class="btn btn-primary">Add to Cart</button>
+            </form>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty-state">No soft or cold drinks available yet.</p>
+    {% endif %}
+  </section>
+
+  <!-- Wines (adult section) -->
+  <section id="wines" class="home-section home-section--adult">
+    <div id="age-gate-modal" class="age-gate-modal" role="dialog" aria-modal="true" aria-labelledby="age-gate-title" hidden>
+      <div class="age-gate-backdrop" data-age-gate-close></div>
+      <div class="age-gate-dialog">
+        <h2 id="age-gate-title" class="age-gate-title">Adults Only</h2>
+        <p class="age-gate-text">The Wines section contains alcoholic products. You must be 18 years or older to view this content.</p>
+        <div class="age-gate-actions">
+          <button type="button" class="btn btn-secondary" data-age-gate-close>Close</button>
+          <button type="button" class="btn btn-primary" data-age-gate-confirm>18+ Are you adult</button>
         </div>
       </div>
-    </article>
-    {% endfor %}
-  </div>
-  {% else %}
-  <p class="empty-state">No featured drinks yet. <a href="{% url 'products:list' %}">Browse all products</a>.</p>
-  {% endif %}
+    </div>
 
-  <!-- Categories -->
-  <h2 class="section-title" style="margin-top: 2.5rem;">Categories</h2>
-  <div class="product-grid">
-    {% for cat in categories %}
-    <a href="{% url 'products:list_by_category' category_slug=cat.slug %}" class="product-card" style="text-decoration:none;color:inherit;">
-      <div class="product-card-image">
-        {% if cat.slug == 'cold-drinks' %}
-          <img src="{% static 'products/Sparkling Lemonade.jpg' %}" alt="Cold Drinks" class="product-card-image">
-        {% elif cat.slug == 'soft-drinks' %}
-          <img src="{% static 'products/Classic Cola.webp' %}" alt="Soft Drinks" class="product-card-image">
-        {% elif cat.slug == 'wines' %}
-          <img src="{% static 'products/Cabernet Sauvignon.webp' %}" alt="Wines" class="product-card-image">
-        {% elif cat.slug == 'tea' or cat.slug == 'teas' %}
-          <img src="{% static 'products/Green Tea.jpg' %}" alt="Tea" class="product-card-image">
-        {% elif cat.slug == 'coffee' or cat.slug == 'coffees' %}
-          <img src="{% static 'products/Arabica Coffee.jpg' %}" alt="Coffee" class="product-card-image">
-        {% else %}
-          <div style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg, #722f37, #8b3d47);color:#fff;font-family: var(--font-display);font-size:1.25rem;">
-            {{ cat.name }}
+    <div id="wines-locked" class="wines-locked">
+      <div class="wines-locked-inner">
+        <span class="wines-locked-badge">18+</span>
+        <h2 class="section-title">Wines</h2>
+        <p class="page-subtitle">This section is for adults only. Please confirm your age to view wines.</p>
+        <button type="button" class="btn btn-primary" data-adult-trigger>Enter Wines Section</button>
+      </div>
+    </div>
+
+    <div id="wines-content" class="wines-content" hidden>
+      <h2 class="section-title">Wines</h2>
+      <p class="page-subtitle">Red, white, rosé, and sparkling wines from around the world.</p>
+      <div class="category-chips home-section-chips">
+        <a href="{% url 'products:list_by_category' category_slug='wines' %}">View All Wines</a>
+      </div>
+      {% if wine_products %}
+      <div class="product-grid">
+        {% for product in wine_products %}
+        <article class="product-card">
+          <a href="{% url 'products:detail' product.slug %}">
+            {% if product.image_url %}
+              <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-card-image">
+            {% else %}
+              <div class="product-card-image" style="display:flex;align-items:center;justify-content:center;color:#999;">No image</div>
+            {% endif %}
+          </a>
+          <div class="product-card-body">
+            <a href="{% url 'products:detail' product.slug %}" style="text-decoration:none;color:inherit;">
+              <h3 class="product-card-title">{{ product.name }}</h3>
+              <p class="product-card-brand">{{ product.brand }}</p>
+              <p class="product-card-desc">{{ product.description }}</p>
+            </a>
+            <p class="product-card-price">₹{{ product.price }}{% if product.volume %} · {{ product.volume }}{% endif %}</p>
+            <div class="product-card-actions">
+              <form action="{% url 'cart:add' product.id %}" method="post" style="display:flex;align-items:center;gap:0.5rem;">
+                {% csrf_token %}
+                <input type="number" name="quantity" value="1" min="1" class="quantity-input" aria-label="Quantity">
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button type="submit" class="btn btn-primary">Add to Cart</button>
+              </form>
+            </div>
           </div>
-        {% endif %}
+        </article>
+        {% endfor %}
       </div>
-      <div class="product-card-body">
-        <h3 class="product-card-title">{{ cat.name }}</h3>
-        <p class="product-card-desc">{{ cat.description|default:"" }}</p>
-        <span class="btn btn-secondary">View all</span>
-      </div>
-    </a>
-    {% endfor %}
-  </div>
+      {% else %}
+      <p class="empty-state">No wines available yet.</p>
+      {% endif %}
+    </div>
+  </section>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/age-gate.js' %}"></script>
 {% endblock %}
