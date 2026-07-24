@@ -13,7 +13,7 @@
   if (!modal) return;
 
   var over18Btn = modal.querySelector('[data-age-gate-confirm="over18"]');
-  var under18Btn = modal.querySelector('[data-age-gate-confirm="under18"]');
+  var closeBtn = modal.querySelector('[data-age-gate-confirm="close"], [data-age-gate-confirm="under18"]');
 
   var pendingTargetUrl = null;
 
@@ -34,7 +34,6 @@
 
   function isVerifiedLocally() {
     try {
-      // Clear legacy permanent localStorage if present so it doesn't bypass session checks
       if (localStorage.getItem(STORAGE_KEY)) {
         localStorage.removeItem(STORAGE_KEY);
       }
@@ -49,7 +48,6 @@
       var strVal = verified ? 'true' : 'false';
       sessionStorage.setItem(STORAGE_KEY, strVal);
       localStorage.removeItem(STORAGE_KEY);
-      // Session cookie without max-age so it expires when session/browser closes
       document.cookie = 'age_verified=' + strVal + '; path=/; SameSite=Lax';
     } catch (e) {}
   }
@@ -90,9 +88,7 @@
       } else {
         markVerifiedLocally(false);
         hideModal();
-        if (data && data.redirect) {
-          window.location.href = data.redirect;
-        } else {
+        if (window.location.pathname.indexOf('/wines') !== -1 || window.location.pathname.indexOf('/category/wine') !== -1) {
           window.location.href = '/';
         }
       }
@@ -105,7 +101,9 @@
       } else {
         markVerifiedLocally(false);
         hideModal();
-        window.location.href = '/';
+        if (window.location.pathname.indexOf('/wines') !== -1) {
+          window.location.href = '/';
+        }
       }
     });
   }
@@ -117,13 +115,13 @@
     });
   }
 
-  if (under18Btn) {
-    under18Btn.addEventListener('click', function () {
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function () {
       handleAgeChoice('under18');
     });
   }
 
-  // Intercept all wine links with data-adult-trigger or links containing '/category/wines' or '/wines'
+  // Intercept all wine links
   document.body.addEventListener('click', function(e) {
     var target = e.target.closest('a[data-adult-trigger], a[href*="/category/wines"], a[href*="/category/wine"], a[href*="/wines"]');
     if (target) {
@@ -145,7 +143,6 @@
     }
   }
 
-  // Expose global helper
   window.HangoverAgeGate = {
     show: showModal,
     hide: hideModal,
