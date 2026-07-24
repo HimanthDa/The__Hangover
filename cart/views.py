@@ -1,11 +1,13 @@
 """
-Cart views: view cart, add, update quantity, remove.
+Cart views: view cart, add, update quantity, remove, and cart history.
 """
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from products.models import Product
+from .models import CartHistory
 from .utils import get_cart_items, add_to_cart, update_cart_item, remove_from_cart
 
 
@@ -50,4 +52,26 @@ def cart_remove(request, product_id):
     """Remove item from cart (POST)."""
     remove_from_cart(request, product_id)
     messages.info(request, 'Item removed from cart.')
+    return redirect('cart:cart')
+
+
+@login_required(login_url='accounts:login')
+def cart_history_view(request):
+    """View customer's cart history."""
+    history_items = CartHistory.objects.filter(user=request.user).select_related('product').order_by('-updated_at')
+    return render(request, 'cart/cart_history.html', {
+        'history_items': history_items,
+    })
+
+
+@login_required(login_url='accounts:login')
+@require_POST
+def cart_history_readd(request, history_id):
+    """Re-add an item from cart history back into current active cart."""
+    item = get_object_or_404(CartHistory, id=history_id, user=request.user)
+    if item.product and item.product.in_stock:
+        add_to_cart(request, item.product.id, item.quantity)
+        messages.success(request, f'Added {item.product.name} (x{item.quantity}) back to your cart.')
+    else:
+        messages.warning(request, f'{item.product.name if item.product else "Item"} is currently out of stock.')
     return redirect('cart:cart')

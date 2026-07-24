@@ -39,6 +39,23 @@ def add_to_cart(request, product_id, quantity=1):
             'image_url': product.image_url if hasattr(product, 'image_url') else '',
         }
     save_cart(request, cart)
+
+    # If user is authenticated, save/update CartHistory record
+    if hasattr(request, 'user') and request.user.is_authenticated:
+        try:
+            from .models import CartHistory
+            cart_item_qty = cart[pid]['quantity']
+            CartHistory.objects.update_or_create(
+                user=request.user,
+                product=product,
+                defaults={
+                    'quantity': cart_item_qty,
+                    'price': product.price,
+                }
+            )
+        except Exception:
+            pass
+
     return True
 
 

@@ -98,8 +98,14 @@ DATABASES = {
     }
 }
 
-# Session configuration - use signed cookies for 100% serverless session persistence
-SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+# Authentication Backends - support username or email, case-insensitive
+AUTHENTICATION_BACKENDS = [
+    'accounts.backends.EmailOrUsernameModelBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# Session configuration - database session store
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 1209600  # 2 weeks
 SESSION_COOKIE_SECURE = False
 SESSION_COOKIE_HTTPONLY = True

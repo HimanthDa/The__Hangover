@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Card & Payment History{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1 class="page-title">Card & Payment History</h1>
+  <p style="color:var(--color-text-muted); margin-bottom: 1.5rem;">
+    View payment card records and transactions processed on your account.
+  </p>
+
+  {% if saved_cards or card_orders %}
+    <div style="display: grid; gap: 2rem;">
+      <!-- Saved Payment Cards -->
+      <div>
+        <h2 style="font-size: 1.25rem; margin-bottom: 1rem;">Saved & Used Payment Cards</h2>
+        {% if saved_cards %}
+          <div class="cart-table-wrap">
+            <table class="cart-table">
+              <thead>
+                <tr>
+                  <th>Card Brand</th>
+                  <th>Cardholder</th>
+                  <th>Card Number</th>
+                  <th>Expires</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for card in saved_cards %}
+                <tr>
+                  <td><strong>{{ card.get_card_brand_display }}</strong></td>
+                  <td>{{ card.cardholder_name }}</td>
+                  <td>•••• •••• •••• {{ card.last_four }}</td>
+                  <td>{{ card.expiry_month }}/{{ card.expiry_year }}</td>
+                  <td>
+                    {% if card.is_default %}
+                      <span class="badge badge-success" style="background:#2e7d32;color:#fff;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.8rem;">Default</span>
+                    {% else %}
+                      <span style="color:var(--color-text-muted);">Active</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="empty-state" style="padding: 1.5rem;">No saved payment cards on file. Cards used during online transactions will appear here.</p>
+        {% endif %}
+      </div>
+
+      <!-- Payment History from Orders -->
+      <div>
+        <h2 style="font-size: 1.25rem; margin-bottom: 1rem;">Payment Transaction History</h2>
+        {% if card_orders %}
+          <div class="cart-table-wrap">
+            <table class="cart-table">
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Date</th>
+                  <th>Payment Method</th>
+                  <th>Amount</th>
+                  <th>Payment Status</th>
+                  <th>Receipt</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for order in card_orders %}
+                <tr>
+                  <td>#{{ order.id }}</td>
+                  <td>{{ order.created_at|date:"M d, Y H:i" }}</td>
+                  <td>
+                    {% if order.payment_method == 'qr' or order.payment_method == 'upi' %}
+                      UPI / QR Code ({{ order.payment_id|default:"Standard" }})
+                    {% else %}
+                      {{ order.payment_method|title }}
+                    {% endif %}
+                  </td>
+                  <td>₹{{ order.total }}</td>
+                  <td>
+                    {% if order.status == 'confirmed' or order.status == 'delivered' %}
+                      <span style="color:#2e7d32; font-weight:600;">Paid ({{ order.get_status_display }})</span>
+                    {% else %}
+                      <span style="color:#e65100; font-weight:600;">{{ order.get_status_display }}</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <a href="{% url 'orders:receipt' order.id %}" class="btn btn-secondary" style="padding:0.3rem 0.6rem; font-size:0.85rem;">Receipt</a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="empty-state">No payment transaction history found.</p>
+        {% endif %}
+      </div>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <p>No card or payment history available yet. Place an order to record payment history.</p>
+      <a href="{% url 'products:list' %}" class="btn btn-primary">Start Shopping</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
