@@ -7,8 +7,19 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from products.models import Product
+from accounts.models import CustomerProfile
 from .models import CartHistory
 from .utils import get_cart_items, add_to_cart, update_cart_item, remove_from_cart
+
+
+def _known_underage_for_wine(user):
+    if not user.is_authenticated:
+        return False
+    try:
+        profile = user.customer_profile
+    except CustomerProfile.DoesNotExist:
+        return False
+    return profile.date_of_birth and not profile.is_adult
 
 
 def cart_view(request):
@@ -27,6 +38,14 @@ def cart_add(request, product_id):
     quantity = int(request.POST.get('quantity', 1))
     if quantity < 1:
         quantity = 1
+    product = get_object_or_404(Product, pk=product_id)
+    if product.is_wine and _known_underage_for_wine(request.user):
+        messages.error(request, 'You must be 18 or older to add wine products to your cart.')
+        next_url = request.POST.get('next') or request.META.get('HTTP_REFERER') or 'main:home'
+        if next_url and next_url.startswith('/'):
+            return redirect(next_url)
+        return redirect('main:home')
+
     if add_to_cart(request, product_id, quantity):
         messages.success(request, 'Item added to cart.')
     else:
@@ -69,6 +88,10 @@ def cart_history_view(request):
 def cart_history_readd(request, history_id):
     """Re-add an item from cart history back into current active cart."""
     item = get_object_or_404(CartHistory, id=history_id, user=request.user)
+    if item.product and item.product.is_wine and _known_underage_for_wine(request.user):
+        messages.error(request, 'You must be 18 or older to add wine products to your cart.')
+        return redirect('cart:cart')
+
     if item.product and item.product.in_stock:
         add_to_cart(request, item.product.id, item.quantity)
         messages.success(request, f'Added {item.product.name} (x{item.quantity}) back to your cart.')

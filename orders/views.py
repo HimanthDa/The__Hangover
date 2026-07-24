@@ -8,8 +8,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods, require_POST
 from django.contrib.auth.decorators import login_required
+from django.utils.dateparse import parse_date
 from .models import Order, OrderItem
 from cart.utils import get_cart_items, save_cart, add_to_cart
+from accounts.models import CustomerProfile, calculate_age
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 
@@ -54,6 +56,42 @@ def _get_last_address_data(request):
             })
 
     return data
+
+
+def _cart_contains_wine(items):
+    return any(item['product'].is_wine for item in items)
+
+
+def _known_underage_for_wine(user):
+    if not user.is_authenticated:
+        return False
+    try:
+        profile = user.customer_profile
+    except CustomerProfile.DoesNotExist:
+        return False
+    return profile.date_of_birth and not profile.is_adult
+
+
+def _get_saved_date_of_birth(request):
+    if request.user.is_authenticated:
+        try:
+            return request.user.customer_profile.date_of_birth
+        except CustomerProfile.DoesNotExist:
+            return None
+
+    date_of_birth_raw = request.session.get('date_of_birth')
+    return parse_date(date_of_birth_raw) if date_of_birth_raw else None
+
+
+def _checkout_context(items, subtotal, total, data, contains_wine, date_of_birth=''):
+    return {
+        'cart_items': items,
+        'subtotal': subtotal,
+        'total': total,
+        'contains_wine': contains_wine,
+        'date_of_birth': date_of_birth,
+        **data,
+    }
 
 
 def _generate_qr_data_uri(amount):
@@ -102,8 +140,11 @@ def checkout(request):
 
     subtotal = sum(item['line_total'] for item in items)
     total = subtotal
+    contains_wine = _cart_contains_wine(items)
 
     initial_data = _get_last_address_data(request)
+    saved_date_of_birth = _get_saved_date_of_birth(request)
+    initial_date_of_birth = saved_date_of_birth.isoformat() if saved_date_of_birth else ''
 
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
@@ -115,27 +156,53 @@ def checkout(request):
         postal_code = request.POST.get('postal_code', '').strip()
         country = request.POST.get('country', 'INDIA').strip()
         phone = request.POST.get('phone', '').strip()
+        date_of_birth_raw = request.POST.get('date_of_birth', '').strip()
+        posted_date_of_birth = parse_date(date_of_birth_raw) if date_of_birth_raw else None
+        effective_date_of_birth = posted_date_of_birth or saved_date_of_birth
+
+        form_data = {
+            'email': email,
+            'first_name': first_name,
+            'last_name': last_name,
+            'address': address,
+            'city': city,
+            'state': state,
+            'postal_code': postal_code,
+            'country': country,
+            'phone': phone,
+        }
 
         if not all([email, first_name, last_name, address, city, state, postal_code, country]):
             messages.error(request, 'Please fill in all required fields.')
-            return render(request, 'orders/checkout.html', {
-                'cart_items': items,
-                'subtotal': subtotal,
-                'total': total,
-                'email': email,
-                'first_name': first_name,
-                'last_name': last_name,
-                'address': address,
-                'city': city,
-                'state': state,
-                'postal_code': postal_code,
-                'country': country,
-                'phone': phone,
-            })
+            return render(request, 'orders/checkout.html', _checkout_context(
+                items, subtotal, total, form_data, contains_wine, date_of_birth_raw
+            ))
+
+        if contains_wine:
+            age = calculate_age(effective_date_of_birth)
+            if age is None:
+                messages.error(request, 'Date of birth is required to buy wine products.')
+                return render(request, 'orders/checkout.html', _checkout_context(
+                    items, subtotal, total, form_data, contains_wine, date_of_birth_raw
+                ))
+            if age < 18:
+                messages.error(request, 'You must be 18 or older to buy wine products.')
+                return render(request, 'orders/checkout.html', _checkout_context(
+                    items, subtotal, total, form_data, contains_wine, date_of_birth_raw
+                ))
 
         session_key = getattr(request.session, 'session_key', None) or 'guest'
 
         try:
+            if effective_date_of_birth:
+                if request.user.is_authenticated:
+                    CustomerProfile.objects.update_or_create(
+                        user=request.user,
+                        defaults={'date_of_birth': effective_date_of_birth},
+                    )
+                else:
+                    request.session['date_of_birth'] = effective_date_of_birth.isoformat()
+
             order = Order(
                 user=request.user if request.user.is_authenticated else None,
                 email=email,
@@ -187,27 +254,13 @@ def checkout(request):
         except Exception as err:
             logging.getLogger(__name__).error(f"Checkout POST error: {err}")
             messages.error(request, f"There was an error placing your order ({err}). Please try again.")
-            return render(request, 'orders/checkout.html', {
-                'cart_items': items,
-                'subtotal': subtotal,
-                'total': total,
-                'email': email,
-                'first_name': first_name,
-                'last_name': last_name,
-                'address': address,
-                'city': city,
-                'state': state,
-                'postal_code': postal_code,
-                'country': country,
-                'phone': phone,
-            })
+            return render(request, 'orders/checkout.html', _checkout_context(
+                items, subtotal, total, form_data, contains_wine, date_of_birth_raw
+            ))
 
-    return render(request, 'orders/checkout.html', {
-        'cart_items': items,
-        'subtotal': subtotal,
-        'total': total,
-        **initial_data,
-    })
+    return render(request, 'orders/checkout.html', _checkout_context(
+        items, subtotal, total, initial_data, contains_wine, initial_date_of_birth
+    ))
 
 
 def order_confirmation(request, order_id):
@@ -302,6 +355,10 @@ def add_order_to_cart(request, order_id):
     added_count = 0
     skipped_count = 0
     for item in order.items.all():
+        if item.product and item.product.is_wine and _known_underage_for_wine(request.user):
+            skipped_count += item.quantity
+            continue
+
         if item.product and item.product.in_stock:
             if add_to_cart(request, item.product.id, item.quantity):
                 added_count += item.quantity

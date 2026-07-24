@@ -14,7 +14,7 @@
         <div class="form-row">
           <div class="form-group">
             <label for="email">Email *</label>
-            <input type="email" name="email" id="email" required value="{{ email|default:request.user.email|default:'' }}">
+            <input type="email" name="email" id="email" required value="{% if email %}{{ email }}{% elif request.user.is_authenticated %}{{ request.user.email }}{% endif %}">
           </div>
           <div class="form-group">
             <label for="phone">Phone</label>
@@ -24,11 +24,11 @@
         <div class="form-row">
           <div class="form-group">
             <label for="first_name">First name *</label>
-            <input type="text" name="first_name" id="first_name" required value="{{ first_name|default:request.user.first_name|default:'' }}">
+            <input type="text" name="first_name" id="first_name" required value="{% if first_name %}{{ first_name }}{% elif request.user.is_authenticated %}{{ request.user.first_name }}{% endif %}">
           </div>
           <div class="form-group">
             <label for="last_name">Last name *</label>
-            <input type="text" name="last_name" id="last_name" required value="{{ last_name|default:request.user.last_name|default:'' }}">
+            <input type="text" name="last_name" id="last_name" required value="{% if last_name %}{{ last_name }}{% elif request.user.is_authenticated %}{{ request.user.last_name }}{% endif %}">
           </div>
         </div>
         <div class="form-group">
@@ -55,6 +55,12 @@
           <label for="country">Country *</label>
           <input type="text" name="country" id="country" value="{{ country|default:'INDIA' }}" required>
         </div>
+        {% if contains_wine %}
+        <div class="form-group">
+          <label for="date_of_birth">Date of Birth *</label>
+          <input type="date" name="date_of_birth" id="date_of_birth" value="{{ date_of_birth|default:'' }}" required>
+        </div>
+        {% endif %}
         <div class="form-group">
           <label>Payment method</label>
           <p>Order will be placed first. The payment QR and receipt will appear on the next page.</p>

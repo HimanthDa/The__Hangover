@@ -16,6 +16,10 @@
       <input type="email" name="email" id="id_email" value="{{ email|default:'' }}" placeholder="name@example.com">
     </div>
     <div class="form-group">
+      <label for="id_date_of_birth">Date of Birth</label>
+      <input type="date" name="date_of_birth" id="id_date_of_birth" value="{{ date_of_birth|default:'' }}" required>
+    </div>
+    <div class="form-group">
       <label for="id_password1">Password</label>
       <input type="password" name="password1" id="id_password1" placeholder="Enter password (min 6 chars)" required>
     </div>

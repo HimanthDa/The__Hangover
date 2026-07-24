@@ -9,9 +9,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count, Sum
 from django.db.models import Q
+from django.utils.dateparse import parse_date
 from products.models import Product, Category
 from orders.models import Order
-from .models import SavedCard
+from .models import CustomerProfile, SavedCard
 
 User = get_user_model()
 
@@ -24,10 +25,12 @@ def signup_view(request):
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
         email = request.POST.get('email', '').strip()
+        date_of_birth_raw = request.POST.get('date_of_birth', '').strip()
         password = request.POST.get('password1', '').strip()
         password_confirm = request.POST.get('password2', '').strip()
 
         errors = []
+        date_of_birth = parse_date(date_of_birth_raw) if date_of_birth_raw else None
         if not username:
             errors.append('Username is required.')
         elif User.objects.filter(username__iexact=username).exists():
@@ -35,6 +38,9 @@ def signup_view(request):
 
         if email and User.objects.filter(email__iexact=email).exists():
             errors.append('An account with this email already exists.')
+
+        if not date_of_birth:
+            errors.append('Date of birth is required.')
 
         if not password:
             errors.append('Password is required.')
@@ -49,6 +55,7 @@ def signup_view(request):
             return render(request, 'accounts/signup.html', {
                 'username': username,
                 'email': email,
+                'date_of_birth': date_of_birth_raw,
             })
 
         user = User.objects.create_user(
@@ -56,6 +63,7 @@ def signup_view(request):
             email=email,
             password=password
         )
+        CustomerProfile.objects.create(user=user, date_of_birth=date_of_birth)
 
         authenticated_user = authenticate(request, username=username, password=password)
         if authenticated_user:
