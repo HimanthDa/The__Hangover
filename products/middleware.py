@@ -20,11 +20,17 @@ class AgeGateMiddleware:
     def __call__(self, request):
         path = request.path.lower()
         
-        # Check if the user is requesting wine category or wine pages
-        is_wine_category = '/category/wines' in path or '/category/wine' in path
-        # Also check product detail path if it's a wine product (handled in view or path pattern)
+        # Check all possible wine route patterns
+        is_wine_route = (
+            '/category/wines' in path
+            or '/category/wine' in path
+            or '/products/wines' in path
+            or '/products/wine' in path
+            or path.endswith('/wines/')
+            or path.endswith('/wines')
+        )
 
-        if is_wine_category:
+        if is_wine_route:
             is_verified = (
                 request.session.get('age_verified') is True
                 or request.COOKIES.get('age_verified') == 'true'
