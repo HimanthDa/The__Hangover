@@ -86,18 +86,44 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Database - SQLite for main data (users, products, orders)
-if IS_VERCEL:
-    DB_PATH = Path('/tmp/db.sqlite3')
+# Database configuration - Supports DATABASE_URL for Postgres/MySQL in production
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    try:
+        import dj_database_url
+        DATABASES = {
+            'default': dj_database_url.config(
+                default=DATABASE_URL,
+                conn_max_age=600,
+                conn_health_checks=True,
+            )
+        }
+    except ImportError:
+        DB_PATH = BASE_DIR / 'db.sqlite3'
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': DB_PATH,
+            }
+        }
 else:
-    DB_PATH = BASE_DIR / 'db.sqlite3'
+    if IS_VERCEL:
+        DB_PATH = Path('/tmp/db.sqlite3')
+        if not DB_PATH.exists() and (BASE_DIR / 'db.sqlite3').exists():
+            try:
+                import shutil
+                shutil.copy2(BASE_DIR / 'db.sqlite3', DB_PATH)
+            except Exception as e:
+                print(f"[vercel] DB copy error: {e}")
+    else:
+        DB_PATH = BASE_DIR / 'db.sqlite3'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': DB_PATH,
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': DB_PATH,
+        }
     }
-}
 
 # Authentication Backends - support username or email, case-insensitive
 AUTHENTICATION_BACKENDS = [

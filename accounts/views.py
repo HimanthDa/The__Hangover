@@ -26,8 +26,8 @@ def signup_view(request):
         username = request.POST.get('username', '').strip()
         email = request.POST.get('email', '').strip()
         date_of_birth_raw = request.POST.get('date_of_birth', '').strip()
-        password = request.POST.get('password1', '').strip()
-        password_confirm = request.POST.get('password2', '').strip()
+        password = request.POST.get('password1', '')
+        password_confirm = request.POST.get('password2', '')
 
         errors = []
         date_of_birth = parse_date(date_of_birth_raw) if date_of_birth_raw else None
@@ -82,7 +82,7 @@ def login_view(request):
 
     if request.method == 'POST':
         login_input = request.POST.get('username', '').strip()
-        password = request.POST.get('password', '').strip()
+        password = request.POST.get('password', '')
 
         if not login_input or not password:
             messages.error(request, 'Please enter both username/email and password.')

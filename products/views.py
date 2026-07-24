@@ -44,7 +44,7 @@ def verify_age(request):
         if choice in ['over18', 'yes', 'over_18']:
             request.session['age_verified'] = True
             response = JsonResponse({'status': 'success', 'verified': True})
-            response.set_cookie('age_verified', 'true', max_age=86400 * 30, httponly=False, samesite='Lax')
+            response.set_cookie('age_verified', 'true', httponly=False, samesite='Lax')
             return response
         else:
             request.session['age_verified'] = False

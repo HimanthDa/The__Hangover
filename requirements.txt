@@ -6,4 +6,5 @@ Pillow>=10.0.0
 qrcode>=7.3
 gunicorn
 whitenoise>=6.7.0
-
+dj-database-url>=2.1.0
+psycopg2-binary>=2.9.9

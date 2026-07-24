@@ -14,6 +14,16 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 # ── Step 3: Bootstrap DB on Vercel BEFORE the WSGI app starts ────────────────
 def _vercel_bootstrap():
     """Run DB migrations and seed on Vercel cold start."""
+    db_path = Path('/tmp/db.sqlite3')
+    if 'DATABASE_URL' not in os.environ:
+        repo_db = ROOT / 'db.sqlite3'
+        if not db_path.exists() and repo_db.exists():
+            try:
+                shutil.copy2(repo_db, db_path)
+                print('[vercel] Seeded SQLite database copied to /tmp/')
+            except Exception as copy_err:
+                print(f'[vercel] Copy DB error: {copy_err}')
+
     import django
     django.setup()
 

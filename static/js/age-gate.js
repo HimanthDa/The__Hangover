@@ -1,6 +1,6 @@
 /**
  * Global Age Verification Handler for "The Hangover"
- * Manages full-screen modal, session/localStorage/cookie state, and backend AJAX verification.
+ * Manages full-screen modal, session state, and backend AJAX verification.
  */
 (function () {
   'use strict';
@@ -34,8 +34,11 @@
 
   function isVerifiedLocally() {
     try {
+      // Clear legacy permanent localStorage if present so it doesn't bypass session checks
+      if (localStorage.getItem(STORAGE_KEY)) {
+        localStorage.removeItem(STORAGE_KEY);
+      }
       if (sessionStorage.getItem(STORAGE_KEY) === 'true') return true;
-      if (localStorage.getItem(STORAGE_KEY) === 'true') return true;
       if (getCookie('age_verified') === 'true') return true;
     } catch (e) {}
     return false;
@@ -45,8 +48,9 @@
     try {
       var strVal = verified ? 'true' : 'false';
       sessionStorage.setItem(STORAGE_KEY, strVal);
-      localStorage.setItem(STORAGE_KEY, strVal);
-      document.cookie = 'age_verified=' + strVal + '; path=/; max-age=' + (86400 * 30) + '; SameSite=Lax';
+      localStorage.removeItem(STORAGE_KEY);
+      // Session cookie without max-age so it expires when session/browser closes
+      document.cookie = 'age_verified=' + strVal + '; path=/; SameSite=Lax';
     } catch (e) {}
   }
 
@@ -119,12 +123,13 @@
     });
   }
 
-  // Intercept all wine links with data-adult-trigger or links containing '/category/wines'
+  // Intercept all wine links with data-adult-trigger or links containing '/category/wines' or '/wines'
   document.body.addEventListener('click', function(e) {
-    var target = e.target.closest('a[data-adult-trigger], a[href*="/category/wines"], a[href*="/category/wine"]');
+    var target = e.target.closest('a[data-adult-trigger], a[href*="/category/wines"], a[href*="/category/wine"], a[href*="/wines"]');
     if (target) {
       if (!isVerifiedLocally()) {
         e.preventDefault();
+        e.stopPropagation();
         var targetUrl = target.getAttribute('href');
         showModal(targetUrl);
       }
