@@ -15,7 +15,7 @@
           <th>Total</th>
           <th>Status</th>
           <th>Receipt</th>
-          <th></th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -29,7 +29,13 @@
             <a href="{% url 'orders:receipt' order.id %}" class="btn btn-secondary" style="padding:0.35rem 0.6rem;">View</a>
             <a href="{% url 'orders:receipt_pdf' order.id %}" class="btn btn-secondary" style="padding:0.35rem 0.6rem;">PDF</a>
           </td>
-          <td><a href="{% url 'orders:detail' order.id %}" class="btn btn-secondary" style="padding:0.35rem 0.6rem;">View</a></td>
+          <td>
+            <a href="{% url 'orders:detail' order.id %}" class="btn btn-secondary" style="padding:0.35rem 0.6rem;">Details</a>
+            <form action="{% url 'orders:add_to_cart' order.id %}" method="post" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-primary" style="padding:0.35rem 0.6rem;">Add items to cart</button>
+            </form>
+          </td>
         </tr>
         {% endfor %}
       </tbody>

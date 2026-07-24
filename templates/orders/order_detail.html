@@ -35,10 +35,14 @@
       {% endfor %}
     </ul>
     <p><strong>Total: ₹{{ order.total }}</strong></p>
-    <p>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+      <form action="{% url 'orders:add_to_cart' order.id %}" method="post" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Add Items to Cart</button>
+      </form>
       <a href="{% url 'orders:receipt' order.id %}" class="btn btn-secondary">View Receipt</a>
       <a href="{% url 'orders:receipt_pdf' order.id %}" class="btn btn-secondary">Download PDF</a>
-    </p>
+    </div>
     <p><a href="{% url 'orders:history' %}" class="btn btn-secondary">Back to My Orders</a></p>
   </div>
 </div>

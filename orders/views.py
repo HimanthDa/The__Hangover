@@ -6,15 +6,21 @@ Demo payment: no real gateway, just create order and show confirmation.
 from decimal import Decimal
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_http_methods, require_POST
+from django.contrib.auth.decorators import login_required
 from .models import Order, OrderItem
-from cart.utils import get_cart_items, get_cart, save_cart
+from cart.utils import get_cart_items, save_cart, add_to_cart
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 
 import logging
 
 # helper for QR generation
+
+
+def _user_can_view_order(user, order):
+    """Return True when a user owns the order or is staff."""
+    return user.is_authenticated and (order.user_id == user.id or user.is_staff)
 
 def _get_last_address_data(request):
     default_data = {
@@ -276,6 +282,39 @@ def order_history(request):
 def order_detail(request, order_id):
     """Single order detail (user's own or admin)."""
     order = get_object_or_404(Order, id=order_id)
-    if request.user.is_authenticated and order.user_id != request.user.id and not request.user.is_staff:
-        return redirect('orders:history')
+    if not _user_can_view_order(request.user, order):
+        if request.user.is_authenticated:
+            messages.warning(request, 'You can only view your own orders.')
+            return redirect('orders:history')
+        return redirect('accounts:login')
     return render(request, 'orders/order_detail.html', {'order': order})
+
+
+@login_required(login_url='accounts:login')
+@require_POST
+def add_order_to_cart(request, order_id):
+    """Add available items from a previous order back to the cart."""
+    order = get_object_or_404(Order.objects.prefetch_related('items__product'), id=order_id)
+    if not _user_can_view_order(request.user, order):
+        messages.warning(request, 'You can only reorder your own orders.')
+        return redirect('orders:history')
+
+    added_count = 0
+    skipped_count = 0
+    for item in order.items.all():
+        if item.product and item.product.in_stock:
+            if add_to_cart(request, item.product.id, item.quantity):
+                added_count += item.quantity
+            else:
+                skipped_count += item.quantity
+        else:
+            skipped_count += item.quantity
+
+    if added_count:
+        messages.success(request, f'Added {added_count} item(s) from order #{order.id} to your cart.')
+    if skipped_count:
+        messages.warning(request, f'{skipped_count} item(s) from that order are no longer available.')
+    if not added_count and not skipped_count:
+        messages.info(request, 'That order has no items to add.')
+
+    return redirect('cart:cart')
