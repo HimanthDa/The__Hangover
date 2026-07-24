@@ -122,6 +122,19 @@ body {
   font-size: 0.9rem;
 }
 
+.header-actions a {
+  color: var(--color-wine);
+  font-weight: 600;
+  text-decoration: none;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  transition: color 0.2s ease;
+}
+
+.header-actions a:hover {
+  color: var(--color-wine-dark);
+}
+
 .cart-link {
   color: var(--color-wine);
   font-weight: 600;
@@ -130,19 +143,23 @@ body {
 
 .inline-form {
   display: inline;
+  margin: 0;
 }
 
 .inline-form button {
   background: none;
   border: none;
-  color: var(--color-text-muted);
+  color: var(--color-wine);
   cursor: pointer;
+  font-family: var(--font-body);
+  font-weight: 600;
   font-size: 1rem;
   padding: 0;
+  transition: color 0.2s ease;
 }
 
 .inline-form button:hover {
-  color: var(--color-wine);
+  color: var(--color-wine-dark);
 }
 
 /* Messages */
