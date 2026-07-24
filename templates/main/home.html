@@ -4,178 +4,103 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<!-- Hero banner -->
-<section class="hero">
-  <div class="container">
-    <h1>The Hangover</h1>
-    <p>Discover teas, coffees, cold drinks, soft drinks, and fine wines. Learn their history, explore brands, and shop online.</p>
-    <div class="category-chips">
-      <a href="#teas-coffees">Teas & Coffees</a>
-      <a href="#soft-cold-drinks">Soft Drinks & Cold Drinks</a>
-      <a href="#wines" class="wines-section-link" data-adult-trigger>Wines</a>
-      <a href="{% url 'main:drink_history' %}">Drink History</a>
-      <a href="{% url 'main:wine_history' %}">Wine History</a>
-    </div>
-    <p style="margin-top: 1.5rem;">
-      <a href="{% url 'products:list' %}" class="btn">Shop All Drinks</a>
-    </p>
+<!-- Hero Section -->
+<section class="hero hero--redesigned">
+  <div class="container hero-inner">
+    <span class="hero-tagline">EST. 2026 · CURATED BEVERAGE EXPERIENCE</span>
+    <h1 class="hero-title">The Hangover</h1>
+    <p class="hero-subtitle">Discover our artisanal soft drinks, premium tea & coffee blends, and fine estate wines.</p>
   </div>
 </section>
 
-<div class="container">
-  <!-- Teas & Coffees -->
-  <section id="teas-coffees" class="home-section">
-    <h2 class="section-title">Teas & Coffees</h2>
-    <p class="page-subtitle">Hot and iced teas, premium coffee beans, and brewed coffee.</p>
-    <div class="category-chips home-section-chips">
-      <a href="{% url 'products:list_by_category' category_slug='tea' %}">Tea</a>
-      <a href="{% url 'products:list_by_category' category_slug='coffee' %}">Coffee</a>
+<!-- Homepage 3 Category Cards Section -->
+<section class="category-cards-section">
+  <div class="container">
+    <div class="section-header text-center">
+      <h2 class="section-title">Explore Our Collection</h2>
+      <p class="section-subtitle">Select a category to browse our curated beverage selection</p>
     </div>
-    {% if tea_coffee_products %}
-    <div class="product-grid">
-      {% for product in tea_coffee_products %}
-      <article class="product-card">
-        <a href="{% url 'products:detail' product.slug %}">
-          {% if product.image_url %}
-            <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-card-image">
-          {% else %}
-            <div class="product-card-image" style="display:flex;align-items:center;justify-content:center;color:#999;">No image</div>
-          {% endif %}
-        </a>
-        <div class="product-card-body">
-          <a href="{% url 'products:detail' product.slug %}" style="text-decoration:none;color:inherit;">
-            <h3 class="product-card-title">{{ product.name }}</h3>
-            <p class="product-card-brand">{{ product.brand }}</p>
-            <p class="product-card-desc">{{ product.description }}</p>
+
+    <div class="category-grid">
+
+      <!-- Category 1: Soft Drinks & Cold Drinks -->
+      <article class="category-card category-card--soft">
+        <div class="category-card-image-wrap">
+          <img src="{% static 'images/cat_soft_cold.jpg' %}" alt="Soft Drinks & Cold Drinks" class="category-card-image">
+          <div class="category-card-overlay"></div>
+          <span class="category-badge">Refreshing & Chilled</span>
+        </div>
+        <div class="category-card-content">
+          <span class="category-icon">🥤</span>
+          <h3 class="category-card-title">Soft Drinks & Cold Drinks</h3>
+          <p class="category-card-desc">Artisanal sodas, sparkling fruit infusions, iced botanicals, and thirst-quenching chillers.</p>
+          <a href="{% url 'products:list_by_category' category_slug='soft-cold-drinks' %}" class="btn category-cta-btn">
+            Explore Soft Drinks
+            <svg class="cta-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
           </a>
-          <p class="product-card-price">₹{{ product.price }}{% if product.volume %} · {{ product.volume }}{% endif %}</p>
-          <div class="product-card-actions">
-            <form action="{% url 'cart:add' product.id %}" method="post" style="display:flex;align-items:center;gap:0.5rem;">
-              {% csrf_token %}
-              <input type="number" name="quantity" value="1" min="1" class="quantity-input" aria-label="Quantity">
-              <input type="hidden" name="next" value="{{ request.get_full_path }}">
-              <button type="submit" class="btn btn-primary">Add to Cart</button>
-            </form>
-          </div>
         </div>
       </article>
-      {% endfor %}
-    </div>
-    {% else %}
-    <p class="empty-state">No teas or coffees available yet.</p>
-    {% endif %}
-  </section>
 
-  <!-- Soft Drinks & Cold Drinks -->
-  <section id="soft-cold-drinks" class="home-section">
-    <h2 class="section-title">Soft Drinks & Cold Drinks</h2>
-    <p class="page-subtitle">Carbonated sodas, chilled beverages, and refreshing coolers.</p>
-    <div class="category-chips home-section-chips">
-      <a href="{% url 'products:list_by_category' category_slug='soft-drinks' %}">Soft Drinks</a>
-      <a href="{% url 'products:list_by_category' category_slug='cold-drinks' %}">Cold Drinks</a>
-    </div>
-    {% if soft_cold_products %}
-    <div class="product-grid">
-      {% for product in soft_cold_products %}
-      <article class="product-card">
-        <a href="{% url 'products:detail' product.slug %}">
-          {% if product.image_url %}
-            <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-card-image">
-          {% else %}
-            <div class="product-card-image" style="display:flex;align-items:center;justify-content:center;color:#999;">No image</div>
-          {% endif %}
-        </a>
-        <div class="product-card-body">
-          <a href="{% url 'products:detail' product.slug %}" style="text-decoration:none;color:inherit;">
-            <h3 class="product-card-title">{{ product.name }}</h3>
-            <p class="product-card-brand">{{ product.brand }}</p>
-            <p class="product-card-desc">{{ product.description }}</p>
+      <!-- Category 2: Tea & Coffee -->
+      <article class="category-card category-card--tea">
+        <div class="category-card-image-wrap">
+          <img src="{% static 'images/cat_tea_coffee.jpg' %}" alt="Tea & Coffee" class="category-card-image">
+          <div class="category-card-overlay"></div>
+          <span class="category-badge">Aromatic & Brewed</span>
+        </div>
+        <div class="category-card-content">
+          <span class="category-icon">☕</span>
+          <h3 class="category-card-title">Tea & Coffee</h3>
+          <p class="category-card-desc">Single-origin coffee roasts, cold brew concentrates, fine loose-leaf teas, and herbal infusions.</p>
+          <a href="{% url 'products:list_by_category' category_slug='tea-coffee' %}" class="btn category-cta-btn">
+            Explore Tea & Coffee
+            <svg class="cta-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
           </a>
-          <p class="product-card-price">₹{{ product.price }}{% if product.volume %} · {{ product.volume }}{% endif %}</p>
-          <div class="product-card-actions">
-            <form action="{% url 'cart:add' product.id %}" method="post" style="display:flex;align-items:center;gap:0.5rem;">
-              {% csrf_token %}
-              <input type="number" name="quantity" value="1" min="1" class="quantity-input" aria-label="Quantity">
-              <input type="hidden" name="next" value="{{ request.get_full_path }}">
-              <button type="submit" class="btn btn-primary">Add to Cart</button>
-            </form>
-          </div>
         </div>
       </article>
-      {% endfor %}
-    </div>
-    {% else %}
-    <p class="empty-state">No soft or cold drinks available yet.</p>
-    {% endif %}
-  </section>
 
-  <!-- Wines (adult section) -->
-  <section id="wines" class="home-section home-section--adult">
-    <div id="age-gate-modal" class="age-gate-modal" role="dialog" aria-modal="true" aria-labelledby="age-gate-title" hidden>
-      <div class="age-gate-backdrop" data-age-gate-close></div>
-      <div class="age-gate-dialog">
-        <h2 id="age-gate-title" class="age-gate-title">Adults Only</h2>
-        <p class="age-gate-text">The Wines section contains alcoholic products. You must be 18 years or older to view this content.</p>
-        <div class="age-gate-actions">
-          <button type="button" class="btn btn-secondary" data-age-gate-close>Close</button>
-          <button type="button" class="btn btn-primary" data-age-gate-confirm>18+ Are you adult</button>
+      <!-- Category 3: Wines (Protected by Age Gate) -->
+      <article class="category-card category-card--wine">
+        <div class="category-card-image-wrap">
+          <img src="{% static 'images/cat_wine.jpg' %}" alt="Wines" class="category-card-image">
+          <div class="category-card-overlay"></div>
+          <span class="category-badge category-badge--restricted">18+ Age Verified Access</span>
         </div>
-      </div>
-    </div>
-
-    <div id="wines-locked" class="wines-locked">
-      <div class="wines-locked-inner">
-        <span class="wines-locked-badge">18+</span>
-        <h2 class="section-title">Wines</h2>
-        <p class="page-subtitle">This section is for adults only. Please confirm your age to view wines.</p>
-        <button type="button" class="btn btn-primary" data-adult-trigger>Enter Wines Section</button>
-      </div>
-    </div>
-
-    <div id="wines-content" class="wines-content" hidden>
-      <h2 class="section-title">Wines</h2>
-      <p class="page-subtitle">Red, white, rosé, and sparkling wines from around the world.</p>
-      <div class="category-chips home-section-chips">
-        <a href="{% url 'products:list_by_category' category_slug='wines' %}">View All Wines</a>
-      </div>
-      {% if wine_products %}
-      <div class="product-grid">
-        {% for product in wine_products %}
-        <article class="product-card">
-          <a href="{% url 'products:detail' product.slug %}">
-            {% if product.image_url %}
-              <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-card-image">
-            {% else %}
-              <div class="product-card-image" style="display:flex;align-items:center;justify-content:center;color:#999;">No image</div>
-            {% endif %}
+        <div class="category-card-content">
+          <span class="category-icon">🍷</span>
+          <h3 class="category-card-title">Wines</h3>
+          <p class="category-card-desc">Curated red vintages, crisp whites, sparkling proseccos, and rosé from renowned world vineyards.</p>
+          <a href="{% url 'products:list_by_category' category_slug='wines' %}" class="btn category-cta-btn category-cta-btn--wine" data-adult-trigger>
+            Explore Wines
+            <svg class="cta-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
           </a>
-          <div class="product-card-body">
-            <a href="{% url 'products:detail' product.slug %}" style="text-decoration:none;color:inherit;">
-              <h3 class="product-card-title">{{ product.name }}</h3>
-              <p class="product-card-brand">{{ product.brand }}</p>
-              <p class="product-card-desc">{{ product.description }}</p>
-            </a>
-            <p class="product-card-price">₹{{ product.price }}{% if product.volume %} · {{ product.volume }}{% endif %}</p>
-            <div class="product-card-actions">
-              <form action="{% url 'cart:add' product.id %}" method="post" style="display:flex;align-items:center;gap:0.5rem;">
-                {% csrf_token %}
-                <input type="number" name="quantity" value="1" min="1" class="quantity-input" aria-label="Quantity">
-                <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                <button type="submit" class="btn btn-primary">Add to Cart</button>
-              </form>
-            </div>
-          </div>
-        </article>
-        {% endfor %}
-      </div>
-      {% else %}
-      <p class="empty-state">No wines available yet.</p>
-      {% endif %}
-    </div>
-  </section>
-</div>
-{% endblock %}
+        </div>
+      </article>
 
-{% block extra_js %}
-<script src="{% static 'js/age-gate.js' %}"></script>
+    </div>
+  </div>
+</section>
+
+<!-- Brand Values / Highlights Banner -->
+<section class="brand-values-section">
+  <div class="container">
+    <div class="values-grid">
+      <div class="value-item">
+        <div class="value-icon">✨</div>
+        <h4>Premium Quality</h4>
+        <p>Sourced from certified growers and master craft distillers worldwide.</p>
+      </div>
+      <div class="value-item">
+        <div class="value-icon">🚚</div>
+        <h4>Express Delivery</h4>
+        <p>Temperature-controlled shipping preserving perfect taste and flavor.</p>
+      </div>
+      <div class="value-item">
+        <div class="value-icon">🛡️</div>
+        <h4>Compliance & Trust</h4>
+        <p>Legally compliant age verification and safe, secure ordering process.</p>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}

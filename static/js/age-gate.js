@@ -1,87 +1,149 @@
 /**
- * Age verification for the Wines section on the home page.
+ * Global Age Verification Handler for "The Hangover"
+ * Manages full-screen modal, session/localStorage/cookie state, and backend AJAX verification.
  */
 (function () {
   'use strict';
 
   var STORAGE_KEY = 'hangover_age_verified';
+  var VERIFY_URL = '/products/verify-age/';
+  var WINES_URL = '/products/category/wines/';
+
   var modal = document.getElementById('age-gate-modal');
-  var lockedView = document.getElementById('wines-locked');
-  var contentView = document.getElementById('wines-content');
-  var confirmButton = modal ? modal.querySelector('[data-age-gate-confirm]') : null;
+  if (!modal) return;
 
-  if (!modal || !lockedView || !contentView) {
-    return;
+  var over18Btn = modal.querySelector('[data-age-gate-confirm="over18"]');
+  var under18Btn = modal.querySelector('[data-age-gate-confirm="under18"]');
+
+  var pendingTargetUrl = null;
+
+  function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      var cookies = document.cookie.split(';');
+      for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
   }
 
-  function isVerified() {
+  function isVerifiedLocally() {
     try {
-      return sessionStorage.getItem(STORAGE_KEY) === 'true';
-    } catch (error) {
-      return false;
-    }
+      if (sessionStorage.getItem(STORAGE_KEY) === 'true') return true;
+      if (localStorage.getItem(STORAGE_KEY) === 'true') return true;
+      if (getCookie('age_verified') === 'true') return true;
+    } catch (e) {}
+    return false;
   }
 
-  function unlockWinesSection() {
-    lockedView.hidden = true;
-    contentView.hidden = false;
+  function markVerifiedLocally(verified) {
+    try {
+      var strVal = verified ? 'true' : 'false';
+      sessionStorage.setItem(STORAGE_KEY, strVal);
+      localStorage.setItem(STORAGE_KEY, strVal);
+      document.cookie = 'age_verified=' + strVal + '; path=/; max-age=' + (86400 * 30) + '; SameSite=Lax';
+    } catch (e) {}
   }
 
-  function showModal() {
+  function showModal(targetUrl) {
+    pendingTargetUrl = targetUrl || WINES_URL;
     modal.hidden = false;
+    modal.classList.add('is-active');
     document.body.classList.add('age-gate-open');
-    if (confirmButton) {
-      confirmButton.focus();
-    }
+    if (over18Btn) over18Btn.focus();
   }
 
   function hideModal() {
     modal.hidden = true;
+    modal.classList.remove('is-active');
     document.body.classList.remove('age-gate-open');
   }
 
-  function confirmAge() {
-    try {
-      sessionStorage.setItem(STORAGE_KEY, 'true');
-    } catch (error) {
-      // If sessionStorage is unavailable, unlock for the current page view.
-    }
-    hideModal();
-    unlockWinesSection();
-    contentView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  function handleAgeChoice(choice) {
+    var csrfToken = getCookie('csrftoken') || '';
+
+    fetch(VERIFY_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({ choice: choice })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (choice === 'over18' || (data && data.verified)) {
+        markVerifiedLocally(true);
+        hideModal();
+        var destination = pendingTargetUrl || WINES_URL;
+        window.location.href = destination;
+      } else {
+        markVerifiedLocally(false);
+        hideModal();
+        if (data && data.redirect) {
+          window.location.href = data.redirect;
+        } else {
+          window.location.href = '/';
+        }
+      }
+    })
+    .catch(function() {
+      if (choice === 'over18') {
+        markVerifiedLocally(true);
+        hideModal();
+        window.location.href = pendingTargetUrl || WINES_URL;
+      } else {
+        markVerifiedLocally(false);
+        hideModal();
+        window.location.href = '/';
+      }
+    });
   }
 
-  function handleTrigger(event) {
-    if (isVerified()) {
-      return;
-    }
-
-    event.preventDefault();
-    showModal();
+  // Event Listeners
+  if (over18Btn) {
+    over18Btn.addEventListener('click', function () {
+      handleAgeChoice('over18');
+    });
   }
 
-  document.querySelectorAll('[data-adult-trigger]').forEach(function (trigger) {
-    trigger.addEventListener('click', handleTrigger);
+  if (under18Btn) {
+    under18Btn.addEventListener('click', function () {
+      handleAgeChoice('under18');
+    });
+  }
+
+  // Intercept all wine links with data-adult-trigger or links containing '/category/wines'
+  document.body.addEventListener('click', function(e) {
+    var target = e.target.closest('a[data-adult-trigger], a[href*="/category/wines"], a[href*="/category/wine"]');
+    if (target) {
+      if (!isVerifiedLocally()) {
+        e.preventDefault();
+        var targetUrl = target.getAttribute('href');
+        showModal(targetUrl);
+      }
+    }
   });
 
-  document.querySelectorAll('[data-age-gate-close]').forEach(function (button) {
-    button.addEventListener('click', hideModal);
-  });
-
-  if (confirmButton) {
-    confirmButton.addEventListener('click', confirmAge);
-  }
-
-  document.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape' && !modal.hidden) {
-      hideModal();
+  // Check URL query parameters if server redirected due to age check
+  var urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('age_gate') === 'wines' || urlParams.get('age_gate') === 'required') {
+    var nextParam = urlParams.get('next');
+    if (!isVerifiedLocally()) {
+      showModal(nextParam || WINES_URL);
     }
-  });
-
-  if (isVerified()) {
-    unlockWinesSection();
-  } else if (window.location.hash === '#wines') {
-    showModal();
-    history.replaceState(null, '', window.location.pathname + window.location.search);
   }
+
+  // Expose global helper
+  window.HangoverAgeGate = {
+    show: showModal,
+    hide: hideModal,
+    isVerified: isVerifiedLocally
+  };
 })();

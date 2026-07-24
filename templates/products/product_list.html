@@ -1,16 +1,24 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{% if category %}{{ category.name }}{% else %}All Drinks{% endif %}{% endblock %}
+{% block title %}{% if category_title %}{{ category_title }}{% elif category %}{{ category.name }}{% else %}All Drinks{% endif %}{% endblock %}
 
 {% block content %}
-<div class="container">
-  <h1 class="page-title">{% if category %}{{ category.name }}{% else %}All Drinks{% endif %}</h1>
-  <p class="page-subtitle">
-    {% if category %}{{ category.description|default:"Browse our selection." }}{% else %}Cold drinks, soft drinks, and wines.{% endif %}
-  </p>
+<div class="container" style="padding-top: 2rem; padding-bottom: 4rem;">
+  <div class="category-header">
+    <h1 class="page-title">{% if category_title %}{{ category_title }}{% elif category %}{{ category.name }}{% else %}All Drinks{% endif %}</h1>
+    <p class="page-subtitle">
+      {% if category_title %}
+        Browse our premium selection of {{ category_title }}.
+      {% elif category %}
+        {{ category.description|default:"Explore our curated selection." }}
+      {% else %}
+        Cold drinks, soft drinks, tea, coffee, and fine wines.
+      {% endif %}
+    </p>
+  </div>
 
-  <!-- Filters (form submits to current page so category is preserved in URL) -->
+  <!-- Filters -->
   <form method="get" class="filters-bar" action="{{ request.path }}">
     <label for="q">Search:</label>
     <input type="search" name="q" id="q" value="{{ search_query }}" placeholder="Name or brand">
@@ -21,12 +29,12 @@
     <button type="submit" class="btn btn-primary">Apply</button>
   </form>
 
-  <!-- Category tabs -->
-  <div class="category-chips" style="margin-bottom: 1.5rem;">
-    <a href="{% url 'products:list' %}">All</a>
-    {% for c in categories %}
-      <a href="{% url 'products:list_by_category' category_slug=c.slug %}">{{ c.name }}</a>
-    {% endfor %}
+  <!-- Category tabs matching Homepage structure -->
+  <div class="category-chips" style="margin-bottom: 2rem;">
+    <a href="{% url 'products:list' %}" class="{% if not category_slug %}active{% endif %}">All Drinks</a>
+    <a href="{% url 'products:list_by_category' category_slug='soft-cold-drinks' %}" class="{% if category_slug == 'soft-cold-drinks' %}active{% endif %}">Soft Drinks & Cold Drinks</a>
+    <a href="{% url 'products:list_by_category' category_slug='tea-coffee' %}" class="{% if category_slug == 'tea-coffee' %}active{% endif %}">Tea & Coffee</a>
+    <a href="{% url 'products:list_by_category' category_slug='wines' %}" class="{% if category_slug == 'wines' %}active{% endif %}" data-adult-trigger>Wines (18+)</a>
   </div>
 
   {% if products %}
@@ -61,8 +69,8 @@
   </div>
   {% else %}
   <div class="empty-state">
-    <p>No products match your filters.</p>
-    <a href="{% url 'products:list' %}" class="btn btn-secondary">Clear filters</a>
+    <p>No products found in this category matching your filters.</p>
+    <a href="{% url 'products:list' %}" class="btn btn-secondary">View All Drinks</a>
   </div>
   {% endif %}
 </div>
