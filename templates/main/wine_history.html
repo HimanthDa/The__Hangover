@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Wine History{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1 class="page-title">Wine History & Culture</h1>
+  <p class="page-subtitle">Types, regions, and the story of wine through time.</p>
+
+  <div class="content-prose">
+    <h2>Types of Wine</h2>
+    <p>
+      Wine is typically grouped by color and style:
+    </p>
+    <ul>
+      <li><strong>Red wine</strong> — Made from dark grapes with skin contact during fermentation. Tannins and bold flavors (e.g., Cabernet Sauvignon, Merlot, Pinot Noir).</li>
+      <li><strong>White wine</strong> — Usually from green or yellow grapes, or red grapes without skin. Lighter, often crisp (e.g., Chardonnay, Sauvignon Blanc, Pinot Grigio).</li>
+      <li><strong>Rosé</strong> — Short skin contact with red grapes, or blending. Pink color, refreshing and versatile.</li>
+      <li><strong>Sparkling wine</strong> — Carbonation from a second fermentation. Champagne (France), Cava (Spain), Prosecco (Italy), and others.</li>
+    </ul>
+
+    <h2>The Wine Making Process</h2>
+    <p>
+      Winemaking generally follows these steps: harvesting grapes at the right ripeness; crushing and pressing to extract juice; fermentation (yeast turns sugar into alcohol); optional malolactic fermentation for some wines; aging in tank or barrel; clarification and stabilization; and finally bottling. For sparkling wines, a second fermentation in the bottle or tank creates the bubbles.
+    </p>
+
+    <h2>Wine Regions of the World</h2>
+    <p>
+      Famous regions include France (Bordeaux, Burgundy, Champagne, Rhône), Italy (Tuscany, Piedmont, Veneto), Spain (Rioja, Ribera del Duero, Priorat), and the United States (Napa, Sonoma, Oregon). Chile, Argentina, Australia, South Africa, and New Zealand also produce world-class wines. Climate, soil, and tradition define each region’s style.
+    </p>
+
+    <h2>Wine History Timeline</h2>
+    <ul>
+      <li><strong>Ancient times</strong> — Wine production in Georgia, Iran, and the Mediterranean (around 6000 BCE and later).</li>
+      <li><strong>Classical era</strong> — Greeks and Romans spread viticulture and winemaking across Europe.</li>
+      <li><strong>Middle Ages</strong> — Monasteries preserved and improved winemaking in Europe.</li>
+      <li><strong>19th century</strong> — Phylloxera crisis; grafting onto resistant rootstocks saved European vineyards.</li>
+      <li><strong>20th–21st century</strong> — New World regions rise; technology and science improve consistency and quality; wine becomes a global industry.</li>
+    </ul>
+    <p>
+      Browse our <a href="{% url 'products:list_by_category' category_slug='wines' %}">wines</a> to see alcohol content, origin, and tasting notes for each bottle.
+    </p>
+  </div>
+</div>
+{% endblock %}

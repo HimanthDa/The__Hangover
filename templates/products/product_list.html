@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if category %}{{ category.name }}{% else %}All Drinks{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1 class="page-title">{% if category %}{{ category.name }}{% else %}All Drinks{% endif %}</h1>
+  <p class="page-subtitle">
+    {% if category %}{{ category.description|default:"Browse our selection." }}{% else %}Cold drinks, soft drinks, and wines.{% endif %}
+  </p>
+
+  <!-- Filters (form submits to current page so category is preserved in URL) -->
+  <form method="get" class="filters-bar" action="{{ request.path }}">
+    <label for="q">Search:</label>
+    <input type="search" name="q" id="q" value="{{ search_query }}" placeholder="Name or brand">
+    <label for="min_price">Min ₹</label>
+    <input type="number" name="min_price" id="min_price" value="{{ min_price }}" min="0" step="0.01" placeholder="0">
+    <label for="max_price">Max ₹</label>
+    <input type="number" name="max_price" id="max_price" value="{{ max_price }}" min="0" step="0.01" placeholder="Any">
+    <button type="submit" class="btn btn-primary">Apply</button>
+  </form>
+
+  <!-- Category tabs -->
+  <div class="category-chips" style="margin-bottom: 1.5rem;">
+    <a href="{% url 'products:list' %}">All</a>
+    {% for c in categories %}
+      <a href="{% url 'products:list_by_category' category_slug=c.slug %}">{{ c.name }}</a>
+    {% endfor %}
+  </div>
+
+  {% if products %}
+  <div class="product-grid">
+    {% for product in products %}
+    <article class="product-card">
+      <a href="{% url 'products:detail' product.slug %}">
+        {% if product.image_url %}
+          <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-card-image">
+        {% else %}
+          <div class="product-card-image" style="display:flex;align-items:center;justify-content:center;color:#999;">No image</div>
+        {% endif %}
+      </a>
+      <div class="product-card-body">
+        <a href="{% url 'products:detail' product.slug %}" style="text-decoration:none;color:inherit;">
+          <h3 class="product-card-title">{{ product.name }}</h3>
+          <p class="product-card-brand">{{ product.brand }}</p>
+          <p class="product-card-desc">{{ product.description }}</p>
+        </a>
+        <p class="product-card-price">₹{{ product.price }}{% if product.volume %} · {{ product.volume }}{% endif %}</p>
+        <div class="product-card-actions">
+          <form action="{% url 'cart:add' product.id %}" method="post" style="display:flex;align-items:center;gap:0.5rem;">
+            {% csrf_token %}
+            <input type="number" name="quantity" value="1" min="1" class="quantity-input" aria-label="Quantity">
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button type="submit" class="btn btn-primary">Add to Cart</button>
+          </form>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <p>No products match your filters.</p>
+    <a href="{% url 'products:list' %}" class="btn btn-secondary">Clear filters</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

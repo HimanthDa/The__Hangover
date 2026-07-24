@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Drink History{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1 class="page-title">History of Beverages</h1>
+  <p class="page-subtitle">From ancient brews to modern cold drinks, soft drinks, tea, and coffee.</p>
+
+  <div class="content-prose">
+    <h2>Early Beverages</h2>
+    <p>
+      Humans have been drinking prepared beverages for millennia. Water was often unsafe, so fermented drinks (beer, wine) and boiled or infused drinks (tea, herbal infusions) became part of daily life. Ancient civilizations in Mesopotamia, Egypt, and China all had sophisticated beverage traditions.
+    </p>
+    <h2>Soft Drinks</h2>
+    <p>
+      Carbonated soft drinks emerged in the 18th and 19th centuries. Joseph Priestley and others experimented with carbonation; by the late 1800s, brands like Coca-Cola and Pepsi were born in the United States. These drinks combined carbonated water with sugar, flavorings, and often caffeine, and quickly became global phenomena.
+    </p>
+    <h2>Cold Drinks</h2>
+    <p>
+      “Cold drinks” today often means chilled non-alcoholic beverages: sodas, iced tea, juice, and energy drinks. Refrigeration and mass distribution in the 20th century made it possible to enjoy these drinks cold everywhere, shaping modern convenience and fast-food culture.
+    </p>
+
+    <h2>Tea</h2>
+    <p>
+      Tea is one of the oldest prepared drinks in the world. Legend places its origin in ancient China, where leaves from a wild tea tree are said to have fallen into boiling water.
+      Over centuries, farmers in China, Japan, India, and elsewhere developed distinct styles such as green, black, white, oolong, and fermented teas like pu-erh.
+      Tea houses and tea ceremonies became important cultural traditions in East Asia, while in Britain and other parts of Europe, afternoon tea evolved into a social ritual.
+    </p>
+    <p>
+      With global trade, tea spread everywhere: British colonialism established large plantations in India and Sri Lanka; traders introduced tea to Russia and the Middle East; and iced tea became a staple in hotter climates.
+      Today, tea ranges from simple everyday black tea bags to carefully crafted loose‑leaf and ceremonial matcha, and herbal infusions are enjoyed alongside true tea made from the Camellia sinensis plant.
+    </p>
+
+    <h2>Coffee</h2>
+    <p>
+      Coffee’s story begins in the highlands of Ethiopia, where wild coffee cherries grew and were used by local communities.
+      By the 15th century, coffee was being cultivated and traded in the Arabian Peninsula, and coffee houses—called qahveh khaneh—appeared in cities like Mecca, Cairo, and Istanbul as places of conversation, music, and news.
+    </p>
+    <p>
+      European merchants brought coffee to Venice and other ports in the 17th century, and it quickly spread across the continent.
+      Coffee houses became centers of intellectual life in London, Paris, and Vienna. To meet rising demand, colonial powers planted coffee in the Caribbean, Central and South America, and Southeast Asia.
+      In the 20th century, espresso, instant coffee, and specialty coffee culture (roasters, cafés, and latte art) created new ways to enjoy the same beans.
+    </p>
+
+    <h2>Ingredients & Regulation</h2>
+    <p>
+      Over time, ingredients have evolved: natural flavorings, artificial sweeteners, and reduced-sugar options. Health and labeling regulations now require clear listing of ingredients and nutritional information, so you can make informed choices about what you drink.
+    </p>
+    <p>
+      Explore our <a href="{% url 'products:list' %}">product pages</a> to see the history and ingredients of each drink we offer, including detailed entries for tea and coffee drinks.
+    </p>
+  </div>
+</div>
+{% endblock %}

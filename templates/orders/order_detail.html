@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1 class="page-title">Order #{{ order.id }}</h1>
+  <p class="page-subtitle">Placed on {{ order.created_at|date:"F d, Y" }} · {{ order.get_status_display }}</p>
+
+  <div class="content-prose">
+    <p><strong>Shipping to:</strong><br>
+      {{ order.first_name }} {{ order.last_name }}<br>
+      {{ order.address }}<br>
+      {{ order.city }}, {{ order.state }} {{ order.postal_code }}<br>
+      {{ order.country }}
+    </p>
+    <p><strong>Email:</strong> {{ order.email }}</p>
+    {% if order.payment_method == 'qr' %}
+    <p><strong>Scan to pay:</strong><br>
+      {% if qr_data_uri %}
+        <img src="{{ qr_data_uri }}" alt="QR code" style="max-width:200px;" />
+      {% else %}
+        <img src="{% static 'images/qr.jpg.jpg' %}" alt="QR code" style="max-width:200px;" />
+      {% endif %}
+    </p>
+    <p style="margin-top:0.75rem;"><strong>Order total:</strong> ₹{{ order.total }}</p>
+    <p><strong>Payment number:</strong> 6303222193</p>
+    <p style="font-size:0.95rem;color:#444;">If your payment app does not auto-fill the amount, enter ₹{{ order.total }} manually.</p>
+    {% endif %}
+    <h2>Items</h2>
+    <ul>
+      {% for item in order.items.all %}
+      <li>{{ item.product_name }} × {{ item.quantity }} — ₹{{ item.line_total }}</li>
+      {% endfor %}
+    </ul>
+    <p><strong>Total: ₹{{ order.total }}</strong></p>
+    <p>
+      <a href="{% url 'orders:receipt' order.id %}" class="btn btn-secondary">View Receipt</a>
+      <a href="{% url 'orders:receipt_pdf' order.id %}" class="btn btn-secondary">Download PDF</a>
+    </p>
+    <p><a href="{% url 'orders:history' %}" class="btn btn-secondary">Back to My Orders</a></p>
+  </div>
+</div>
+{% endblock %}

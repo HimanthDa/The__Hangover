@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+  <h1>Log In</h1>
+  <form method="post" action="{% url 'accounts:login' %}?{% if request.GET.next %}next={{ request.GET.next }}{% endif %}">
+    {% csrf_token %}
+    {% if request.GET.next %}
+      <input type="hidden" name="next" value="{{ request.GET.next }}">
+    {% endif %}
+    <div class="form-group">
+      <label for="id_username">Username</label>
+      <input type="text" name="username" id="id_username" required autofocus>
+    </div>
+    <div class="form-group">
+      <label for="id_password">Password</label>
+      <input type="password" name="password" id="id_password" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Log In</button>
+  </form>
+  <p>Don't have an account? <a href="{% url 'accounts:signup' %}">Sign up</a>.</p>
+</div>
+{% endblock %}

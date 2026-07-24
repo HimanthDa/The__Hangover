@@ -1,0 +1,10 @@
+venv
+run
+apps.py
+__pycache__
+*.pyc
+.git
+media
+staticfiles
+node_modules
+*.sqlite3

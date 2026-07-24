@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1 class="page-title">Admin Dashboard</h1>
+  <p class="page-subtitle">Overview of products, orders, and revenue.</p>
+
+  <div class="dashboard-stats">
+    <div class="dashboard-stat">
+      <div class="number">{{ product_count }}</div>
+      <div class="label">Products</div>
+    </div>
+    <div class="dashboard-stat">
+      <div class="number">{{ category_count }}</div>
+      <div class="label">Categories</div>
+    </div>
+    <div class="dashboard-stat">
+      <div class="number">{{ order_count }}</div>
+      <div class="label">Orders</div>
+    </div>
+    <div class="dashboard-stat">
+      <div class="number">₹{{ total_revenue }}</div>
+      <div class="label">Total Revenue</div>
+    </div>
+  </div>
+
+  <div class="dashboard-section">
+    <h2>Quick Links</h2>
+    <p>
+      <a href="{% url 'admin:index' %}" class="btn btn-primary">Django Admin</a>
+      <a href="{% url 'admin:products_product_add' %}" class="btn btn-secondary">Add Product</a>
+      <a href="{% url 'admin:products_category_add' %}" class="btn btn-secondary">Add Category</a>
+    </p>
+  </div>
+
+  <div class="dashboard-section">
+    <h2>Recent Orders</h2>
+    {% if recent_orders %}
+    <div class="cart-table-wrap">
+      <table class="cart-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Email</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in recent_orders %}
+          <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.email }}</td>
+            <td>₹{{ order.total }}</td>
+            <td>{{ order.get_status_display }}</td>
+            <td>{{ order.created_at|date:"M d, Y H:i" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p>No orders yet.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

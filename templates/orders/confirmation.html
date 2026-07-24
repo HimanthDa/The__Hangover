@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  {% if order.status == 'confirmed' %}Order Confirmed #{{ order.id }}{% else %}Payment for Order #{{ order.id }}{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  {% if order.status != 'confirmed' %}
+    <h1 class="page-title">Complete Your Payment</h1>
+    <p class="page-subtitle">Scan the QR code or pay via UPI to complete Order #{{ order.id }}</p>
+  {% else %}
+    <h1 class="page-title" style="color: #2e7d32;">Payment Successful!</h1>
+    <p class="page-subtitle">Thank you for your purchase. Your order #{{ order.id }} has been confirmed.</p>
+  {% endif %}
+
+  <div class="checkout-layout" style="max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr 340px; gap: 2rem;">
+    <div style="background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center;">
+      {% if order.status != 'confirmed' %}
+        <h3 style="margin-bottom: 0.5rem; color: #333;">Scan & Pay with any UPI App</h3>
+        <p style="color: #666; font-size: 0.95rem; margin-bottom: 1.5rem;">Google Pay / PhonePe / Paytm / BHIM</p>
+
+        <div style="display: inline-block; padding: 1rem; background: #fff; border: 2px solid #eee; border-radius: 12px; margin-bottom: 1rem;">
+          {% if qr_data_uri %}
+            <img src="{{ qr_data_uri }}" alt="Payment QR code" style="width:220px; height:220px; display:block; margin: 0 auto;"/>
+          {% else %}
+            <img src="{% static 'images/qr.jpg.jpg' %}" alt="Payment QR code" style="width:220px; height:220px; display:block; margin: 0 auto;"/>
+          {% endif %}
+        </div>
+
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center;">
+          <p style="margin: 0; font-size: 1.25rem; font-weight: 700; color: #111;">Total Amount: ₹{{ order.total }}</p>
+          <p style="margin: 0.25rem 0 0 0; color: #555;">UPI Number: <strong>6303222193</strong></p>
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-size: 1.1rem; font-weight: 600;">
+            ✓ I Have Paid ₹{{ order.total }}
+          </button>
+        </form>
+      {% else %}
+        <div style="text-align: center; padding: 1.5rem 0;">
+          <div style="font-size: 3rem; color: #2e7d32; margin-bottom: 0.5rem;">✓</div>
+          <h2 style="color: #2e7d32; margin-bottom: 0.5rem;">Payment Confirmed</h2>
+          <p style="color: #555;">Order #{{ order.id }} is now being processed.</p>
+          <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="{% url 'orders:receipt' order.id %}" class="btn btn-primary">View & Print Receipt</a>
+            <a href="{% url 'main:home' %}" class="btn btn-secondary">Continue Shopping</a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <aside class="checkout-summary" style="background: #fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+      <h3>Order Details (#{{ order.id }})</h3>
+      <p style="font-size: 0.9rem; color: #666; margin-bottom: 1rem;">
+        Deliver to: <strong>{{ order.first_name }} {{ order.last_name }}</strong><br>
+        {{ order.address }}, {{ order.city }}, {{ order.state }} - {{ order.postal_code }}
+      </p>
+      <ul style="list-style: none; padding: 0; margin: 0 0 1rem 0; border-top: 1px solid #eee; border-bottom: 1px solid #eee;">
+        {% for item in order.items.all %}
+        <li style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px dashed #eee;">
+          <span>{{ item.product_name }} × {{ item.quantity }}</span>
+          <strong>₹{{ item.line_total }}</strong>
+        </li>
+        {% endfor %}
+      </ul>
+      <p class="total" style="font-size: 1.2rem; font-weight: 700; display: flex; justify-content: space-between; margin: 0;">
+        <span>Total:</span>
+        <span>₹{{ order.total }}</span>
+      </p>
+    </aside>
+  </div>
+</div>
+{% endblock %}
+

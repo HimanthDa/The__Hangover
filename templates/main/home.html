@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<!-- Hero banner -->
+<section class="hero">
+  <div class="container">
+    <h1>The Hangover</h1>
+    <p>Discover cold drinks, soft drinks, and fine wines. Learn their history, explore brands, and shop online.</p>
+    <div class="category-chips">
+      <a href="{% url 'products:list_by_category' category_slug='cold-drinks' %}">Cold Drinks</a>
+      <a href="{% url 'products:list_by_category' category_slug='soft-drinks' %}">Soft Drinks</a>
+      <a href="{% url 'products:list_by_category' category_slug='wines' %}">Wines</a>
+      <a href="{% url 'main:drink_history' %}">Drink History</a>
+      <a href="{% url 'main:wine_history' %}">Wine History</a>
+    </div>
+    <p style="margin-top: 1.5rem;">
+      <a href="{% url 'products:list' %}" class="btn">Shop All Drinks</a>
+    </p>
+  </div>
+</section>
+
+<div class="container">
+  <!-- Featured drinks -->
+  <h2 class="section-title">Featured Drinks</h2>
+  {% if featured %}
+  <div class="product-grid">
+    {% for product in featured %}
+    <article class="product-card">
+      <a href="{% url 'products:detail' product.slug %}">
+        {% if product.image_url %}
+          <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-card-image">
+        {% else %}
+          <div class="product-card-image" style="display:flex;align-items:center;justify-content:center;color:#999;">No image</div>
+        {% endif %}
+      </a>
+      <div class="product-card-body">
+        <a href="{% url 'products:detail' product.slug %}" style="text-decoration:none;color:inherit;">
+          <h3 class="product-card-title">{{ product.name }}</h3>
+          <p class="product-card-brand">{{ product.brand }}</p>
+          <p class="product-card-desc">{{ product.description }}</p>
+        </a>
+        <p class="product-card-price">₹{{ product.price }}{% if product.volume %} · {{ product.volume }}{% endif %}</p>
+        <div class="product-card-actions">
+          <form action="{% url 'cart:add' product.id %}" method="post" style="display:flex;align-items:center;gap:0.5rem;">
+            {% csrf_token %}
+            <input type="number" name="quantity" value="1" min="1" class="quantity-input" aria-label="Quantity">
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button type="submit" class="btn btn-primary">Add to Cart</button>
+          </form>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="empty-state">No featured drinks yet. <a href="{% url 'products:list' %}">Browse all products</a>.</p>
+  {% endif %}
+
+  <!-- Categories -->
+  <h2 class="section-title" style="margin-top: 2.5rem;">Categories</h2>
+  <div class="product-grid">
+    {% for cat in categories %}
+    <a href="{% url 'products:list_by_category' category_slug=cat.slug %}" class="product-card" style="text-decoration:none;color:inherit;">
+      <div class="product-card-image">
+        {% if cat.slug == 'cold-drinks' %}
+          <img src="{% static 'products/Sparkling Lemonade.jpg' %}" alt="Cold Drinks" class="product-card-image">
+        {% elif cat.slug == 'soft-drinks' %}
+          <img src="{% static 'products/Classic Cola.webp' %}" alt="Soft Drinks" class="product-card-image">
+        {% elif cat.slug == 'wines' %}
+          <img src="{% static 'products/Cabernet Sauvignon.webp' %}" alt="Wines" class="product-card-image">
+        {% elif cat.slug == 'tea' or cat.slug == 'teas' %}
+          <img src="{% static 'products/Green Tea.jpg' %}" alt="Tea" class="product-card-image">
+        {% elif cat.slug == 'coffee' or cat.slug == 'coffees' %}
+          <img src="{% static 'products/Arabica Coffee.jpg' %}" alt="Coffee" class="product-card-image">
+        {% else %}
+          <div style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg, #722f37, #8b3d47);color:#fff;font-family: var(--font-display);font-size:1.25rem;">
+            {{ cat.name }}
+          </div>
+        {% endif %}
+      </div>
+      <div class="product-card-body">
+        <h3 class="product-card-title">{{ cat.name }}</h3>
+        <p class="product-card-desc">{{ cat.description|default:"" }}</p>
+        <span class="btn btn-secondary">View all</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1 class="page-title">Shopping Cart</h1>
+
+  {% if cart_items %}
+  <div class="cart-table-wrap">
+    <table class="cart-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Total</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart_items %}
+        <tr>
+          <td>
+            <a href="{% url 'products:detail' item.product.slug %}" style="display:flex;align-items:center;gap:0.75rem;text-decoration:none;color:inherit;">
+              {% if item.product.image_url %}
+                <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" style="width:60px;height:60px;object-fit:cover;border-radius:4px;">
+              {% else %}
+                <div style="width:60px;height:60px;background:var(--color-cream-dark);border-radius:4px;"></div>
+              {% endif %}
+              <span>{{ item.product.name }} ({{ item.product.brand }})</span>
+            </a>
+          </td>
+          <td>₹{{ item.price }}{% if item.product.volume %} · {{ item.product.volume }}{% endif %}</td>
+          <td>
+            <form action="{% url 'cart:update' item.product.id %}" method="post" style="display:inline-flex;align-items:center;gap:0.25rem;">
+              {% csrf_token %}
+              <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="quantity-input" style="width:60px;">
+              <button type="submit" class="btn btn-secondary" style="padding:0.35rem 0.6rem;">Update</button>
+            </form>
+          </td>
+          <td>₹{{ item.line_total }}{% if item.product.volume %} · {{ item.product.volume }}{% endif %}</td>
+          <td>
+            <form action="{% url 'cart:remove' item.product.id %}" method="post" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-secondary" style="padding:0.35rem 0.6rem;">Remove</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tr class="cart-total-row">
+        <td colspan="3">Subtotal</td>
+        <td>₹{{ subtotal }}</td>
+        <td></td>
+      </tr>
+    </table>
+  </div>
+  <div class="cart-actions">
+    <a href="{% url 'products:list' %}" class="btn btn-secondary">Continue Shopping</a>
+    <a href="{% url 'orders:checkout' %}" class="btn btn-primary">Proceed to Checkout</a>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <p>Your cart is empty.</p>
+    <a href="{% url 'products:list' %}" class="btn btn-primary">Browse Drinks</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

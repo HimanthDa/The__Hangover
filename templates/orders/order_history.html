@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}My Orders{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1 class="page-title">My Orders</h1>
+  {% if orders %}
+  <div class="cart-table-wrap">
+    <table class="cart-table">
+      <thead>
+        <tr>
+          <th>Order #</th>
+          <th>Date</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Receipt</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td>{{ order.id }}</td>
+          <td>{{ order.created_at|date:"M d, Y" }}</td>
+          <td>₹{{ order.total }}</td>
+          <td>{{ order.get_status_display }}</td>
+          <td>
+            <a href="{% url 'orders:receipt' order.id %}" class="btn btn-secondary" style="padding:0.35rem 0.6rem;">View</a>
+            <a href="{% url 'orders:receipt_pdf' order.id %}" class="btn btn-secondary" style="padding:0.35rem 0.6rem;">PDF</a>
+          </td>
+          <td><a href="{% url 'orders:detail' order.id %}" class="btn btn-secondary" style="padding:0.35rem 0.6rem;">View</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="empty-state">You haven't placed any orders yet. <a href="{% url 'products:list' %}">Start shopping</a>.</p>
+  {% endif %}
+</div>
+{% endblock %}

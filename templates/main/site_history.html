@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}The Hangover History{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1 class="page-title">The Hangover History</h1>
+  <p class="page-subtitle">How the idea started — and why we built a place to learn and shop.</p>
+
+  <div class="content-prose">
+    <h2>Where it began</h2>
+    <p>
+      The Hangover started with a simple problem: beverage shopping online was convenient, but it rarely explained what you were buying.
+      Cold drinks and soft drinks often feel “everyday,” and wine can feel “complicated.” We wanted one modern website that treats
+      every drink with the same respect — clear product info, real origins, ingredients, and a story you can trust.
+    </p>
+
+    <h2>What we believe</h2>
+    <ul>
+      <li><strong>Transparency</strong> — ingredients, origin, and brand details should be easy to understand.</li>
+      <li><strong>Education</strong> — wine types, regions, and production shouldn’t be hidden behind jargon.</li>
+      <li><strong>Convenience</strong> — browse, filter, add to cart, and checkout in a few clicks.</li>
+      <li><strong>Quality</strong> — clean product pages with high‑quality images and consistent information.</li>
+    </ul>
+
+    <h2>Our timeline</h2>
+    <ul>
+      <li><strong>Idea</strong> — build a single platform for cold drinks, soft drinks, and wines.</li>
+      <li><strong>Research</strong> — collect beverage histories, ingredient references, and wine education topics.</li>
+      <li><strong>Catalog</strong> — create categories and structured product fields (history, origin, ingredients, brand variations).</li>
+      <li><strong>Shop</strong> — add cart, checkout, and order history to support online purchasing.</li>
+      <li><strong>Admin</strong> — enable product, image, user, and order management through the dashboard.</li>
+    </ul>
+
+    <h2>What’s next</h2>
+    <p>
+      This site is designed to grow: more drinks, more regions, richer timelines, and better recommendations.
+      If you’re exploring wine, check the <a href="{% url 'main:wine_history' %}">Wine History</a> section for types, regions, and the winemaking process.
+      For everyday beverages, visit <a href="{% url 'main:drink_history' %}">Drink History</a>.
+    </p>
+  </div>
+</div>
+{% endblock %}
+

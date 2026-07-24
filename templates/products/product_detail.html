@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <article class="product-detail">
+    <div class="product-detail-image-wrap">
+      {% if product.image_url %}
+        <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-detail-image">
+      {% else %}
+        <div class="product-detail-image" style="display:flex;align-items:center;justify-content:center;color:#999;">No image</div>
+      {% endif %}
+    </div>
+    <div class="product-detail-info">
+      <h1>{{ product.name }}</h1>
+      <p class="product-detail-meta">
+        {{ product.brand }} · {{ product.category.name }}
+        {% if product.country_of_origin %} · {{ product.country_of_origin }}{% endif %}
+        {% if product.alcohol_percentage %} · {{ product.alcohol_percentage }}% ABV{% endif %}
+      </p>
+      <p class="product-detail-price">₹{{ product.price }}{% if product.volume %} · {{ product.volume }}{% endif %}</p>
+      <p>{{ product.description }}</p>
+
+      <div class="product-detail-add">
+        <form action="{% url 'cart:add' product.id %}" method="post" style="display:flex;align-items:center;gap:0.75rem;">
+          {% csrf_token %}
+          <label for="qty">Quantity:</label>
+          <input type="number" name="quantity" id="qty" value="1" min="1" class="quantity-input">
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <button type="submit" class="btn btn-primary">Add to Cart</button>
+        </form>
+      </div>
+
+      <div class="product-detail-section">
+        <h3>Ingredients</h3>
+        <p>{{ product.ingredients|linebreaksbr }}</p>
+      </div>
+      <div class="product-detail-section">
+        <h3>History</h3>
+        <p>{{ product.history|linebreaksbr }}</p>
+      </div>
+    </div>
+  </article>
+</div>
+{% endblock %}
