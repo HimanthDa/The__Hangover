@@ -8,13 +8,18 @@
   var modal = document.getElementById('age-gate-modal');
   var lockedView = document.getElementById('wines-locked');
   var contentView = document.getElementById('wines-content');
+  var confirmButton = modal ? modal.querySelector('[data-age-gate-confirm]') : null;
 
   if (!modal || !lockedView || !contentView) {
     return;
   }
 
   function isVerified() {
-    return sessionStorage.getItem(STORAGE_KEY) === 'true';
+    try {
+      return sessionStorage.getItem(STORAGE_KEY) === 'true';
+    } catch (error) {
+      return false;
+    }
   }
 
   function unlockWinesSection() {
@@ -25,6 +30,9 @@
   function showModal() {
     modal.hidden = false;
     document.body.classList.add('age-gate-open');
+    if (confirmButton) {
+      confirmButton.focus();
+    }
   }
 
   function hideModal() {
@@ -33,7 +41,11 @@
   }
 
   function confirmAge() {
-    sessionStorage.setItem(STORAGE_KEY, 'true');
+    try {
+      sessionStorage.setItem(STORAGE_KEY, 'true');
+    } catch (error) {
+      // If sessionStorage is unavailable, unlock for the current page view.
+    }
     hideModal();
     unlockWinesSection();
     contentView.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -56,7 +68,6 @@
     button.addEventListener('click', hideModal);
   });
 
-  var confirmButton = modal.querySelector('[data-age-gate-confirm]');
   if (confirmButton) {
     confirmButton.addEventListener('click', confirmAge);
   }

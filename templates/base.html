@@ -20,7 +20,7 @@
                 <a href="{% url 'main:about' %}">About</a>
                 <a href="{% url 'products:list_by_category' category_slug='cold-drinks' %}">Cold Drinks</a>
                 <a href="{% url 'products:list_by_category' category_slug='soft-drinks' %}">Soft Drinks</a>
-                <a href="{% url 'products:list_by_category' category_slug='wines' %}">Wines</a>
+                <a href="{% url 'main:home' %}#wines" data-adult-trigger>Wines</a>
                 <a href="{% url 'main:site_history' %}">The Hangover History</a>
                 <a href="{% url 'main:drink_history' %}">Drink History</a>
                 <a href="{% url 'main:wine_history' %}">Wine History</a>
@@ -84,7 +84,7 @@
                         <li><a href="{% url 'products:list_by_category' category_slug='soft-drinks' %}">Soft Drinks</a></li>
                         <li><a href="{% url 'products:list_by_category' category_slug='tea' %}">Tea</a></li>
                         <li><a href="{% url 'products:list_by_category' category_slug='coffee' %}">Coffee</a></li>
-                        <li><a href="{% url 'products:list_by_category' category_slug='wines' %}">Wines</a></li>
+                        <li><a href="{% url 'main:home' %}#wines" data-adult-trigger>Wines</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
