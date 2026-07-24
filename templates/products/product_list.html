@@ -34,7 +34,7 @@
     <a href="{% url 'products:list' %}" class="{% if not category_slug %}active{% endif %}">All Drinks</a>
     <a href="{% url 'products:list_by_category' category_slug='soft-cold-drinks' %}" class="{% if category_slug == 'soft-cold-drinks' %}active{% endif %}">Soft Drinks & Cold Drinks</a>
     <a href="{% url 'products:list_by_category' category_slug='tea-coffee' %}" class="{% if category_slug == 'tea-coffee' %}active{% endif %}">Tea & Coffee</a>
-    <a href="{% url 'products:list_by_category' category_slug='wines' %}" class="{% if category_slug == 'wines' %}active{% endif %}" data-adult-trigger>Wines (18+)</a>
+    <a href="{% url 'products:list_by_category' category_slug='wines' %}" class="{% if category_slug == 'wines' %}active{% endif %}">Wines</a>
   </div>
 
   {% if products %}

@@ -1,67 +1,22 @@
 """
-Product listing, detail views, and age verification endpoint.
-Supports combined category pages and backend age gating for wine products.
+Product listing and detail views.
+Supports individual and combined category pages.
 """
 
-import json
-from urllib.parse import quote
-from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
+from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 from django.http import JsonResponse
-from django.contrib import messages
 from .models import Product, Category
 
 
 def is_age_verified(request):
-    """
-    Check if the current request is age-verified for wines.
-    Checks Django session, cookies, and user customer profile.
-    """
-    if request.session.get('age_verified') is True:
-        return True
-    if request.COOKIES.get('age_verified') == 'true':
-        return True
-    if request.user.is_authenticated:
-        profile = getattr(request.user, 'customerprofile', None)
-        if profile and profile.is_adult:
-            return True
-    return False
+    """Bypassed helper for backwards compatibility."""
+    return True
 
 
 def verify_age(request):
-    """
-    Endpoint for processing age verification responses from the age-gate modal.
-    Sets Django session and cookie for session-persisted access.
-    """
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            choice = data.get('choice', '')
-        except (json.JSONDecodeError, AttributeError):
-            choice = request.POST.get('choice', '')
-
-        if choice in ['over18', 'yes', 'over_18']:
-            request.session['age_verified'] = True
-            response = JsonResponse({'status': 'success', 'verified': True})
-            response.set_cookie('age_verified', 'true', httponly=False, samesite='Lax')
-            return response
-        else:
-            request.session['age_verified'] = False
-            messages.info(
-                request,
-                'Sorry, wine products are only available to customers aged 18 years or older.'
-            )
-            response = JsonResponse({
-                'status': 'denied',
-                'verified': False,
-                'message': 'Sorry, wine products are only available to customers aged 18 years or older.',
-                'redirect': reverse('main:home')
-            })
-            response.set_cookie('age_verified', 'false', max_age=86400, httponly=False, samesite='Lax')
-            return response
-
-    return JsonResponse({'verified': is_age_verified(request)})
+    """Endpoint kept for backwards compatibility."""
+    return JsonResponse({'status': 'success', 'verified': True})
 
 
 def product_list(request, category_slug=None):
@@ -70,7 +25,7 @@ def product_list(request, category_slug=None):
     Supports individual categories and combined category pages:
     - soft-cold-drinks (Soft Drinks & Cold Drinks)
     - tea-coffee (Tea & Coffee)
-    - wines (Wines - Protected by Age Gate)
+    - wines (Wines)
     """
     products = Product.objects.filter(in_stock=True).select_related('category')
     category = None
@@ -86,20 +41,11 @@ def product_list(request, category_slug=None):
             products = products.filter(category__slug__in=['tea', 'coffee'])
             category_title = "Tea & Coffee"
         elif slug_lower in ['wines', 'wine']:
-            # Age gate check
-            if not is_age_verified(request):
-                messages.warning(request, 'You must be at least 18 years old to enter the Wines section.')
-                home_url = reverse('main:home')
-                return redirect(f"{home_url}?age_gate=wines&next={quote(request.path)}")
             category = get_object_or_404(Category, slug='wines')
             products = products.filter(category=category)
             category_title = category.name
         else:
             category = get_object_or_404(Category, slug=category_slug)
-            if category.slug == 'wines' and not is_age_verified(request):
-                messages.warning(request, 'You must be at least 18 years old to enter the Wines section.')
-                home_url = reverse('main:home')
-                return redirect(f"{home_url}?age_gate=wines&next={quote(request.path)}")
             products = products.filter(category=category)
             category_title = category.name
 
@@ -140,13 +86,6 @@ def product_list(request, category_slug=None):
 
 
 def product_detail(request, slug):
-    """Product detail page with backend age protection for wines."""
+    """Product detail page with full info and add to cart."""
     product = get_object_or_404(Product, slug=slug)
-
-    # Protect wine detail pages
-    if product.is_wine and not is_age_verified(request):
-        messages.warning(request, 'You must be at least 18 years old to view wine products.')
-        home_url = reverse('main:home')
-        return redirect(f"{home_url}?age_gate=wines&next={quote(request.path)}")
-
     return render(request, 'products/product_detail.html', {'product': product})
