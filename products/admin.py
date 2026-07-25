@@ -17,11 +17,13 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'brand', 'category', 'price', 'in_stock', 'featured', 'created_at')
+    list_editable = ('price', 'in_stock', 'featured')
     list_filter = ('category', 'featured', 'in_stock')
     search_fields = ('name', 'brand', 'description')
     prepopulated_fields = {'slug': ('name',)}
     readonly_fields = ('created_at', 'updated_at')
     fieldsets = (
+
         (None, {
             'fields': ('name', 'slug', 'category', 'brand', 'price', 'description')
         }),
