@@ -80,13 +80,11 @@ def _vercel_bootstrap():
         print(f'[vercel] collectstatic error: {e}')
 
 
-IS_VERCEL = 'VERCEL' in os.environ or 'VERCEL_ENV' in os.environ
+try:
+    _vercel_bootstrap()
+except Exception as err:
+    print(f'[vercel] bootstrap FATAL: {err}')
 
-if IS_VERCEL:
-    try:
-        _vercel_bootstrap()
-    except Exception as err:
-        print(f'[vercel] bootstrap FATAL: {err}')
 
 # ── Step 4: Create WSGI app ───────────────────────────────────────────────────
 from django.core.wsgi import get_wsgi_application  # noqa: E402

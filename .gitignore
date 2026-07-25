@@ -15,11 +15,8 @@ apps.py/
 local_settings.py
 db.sqlite3
 *.sqlite3
-media/
-staticfiles/
-.vercel/
-
 # Temporary / Scratch
+
 scratch/
 
 # IDE

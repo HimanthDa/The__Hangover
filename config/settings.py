@@ -167,6 +167,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+if (BASE_DIR / 'staticfiles').exists():
+    STATICFILES_DIRS.append(BASE_DIR / 'staticfiles')
 
 if IS_VERCEL:
     STATIC_ROOT = Path('/tmp/staticfiles')
@@ -175,6 +177,7 @@ else:
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 WHITENOISE_USE_FINDERS = True
+
 
 # Media files (user-uploaded product images)
 MEDIA_URL = 'media/'
