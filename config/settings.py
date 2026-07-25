@@ -30,10 +30,13 @@ ALLOWED_HOSTS.extend(['.vercel.app', '.app.github.dev', '.now.sh', '*'])
 ALLOWED_HOSTS = list(dict.fromkeys(ALLOWED_HOSTS))
 
 CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if origin.strip()]
+CSRF_TRUSTED_ORIGINS.extend(['https://the-hangover-ne58.vercel.app', 'https://*.vercel.app'])
 if VERCEL_HOST:
     vercel_origin = f'https://{VERCEL_HOST.replace("https://", "").replace("http://", "")}'
     if vercel_origin not in CSRF_TRUSTED_ORIGINS:
         CSRF_TRUSTED_ORIGINS.append(vercel_origin)
+CSRF_TRUSTED_ORIGINS = list(dict.fromkeys(CSRF_TRUSTED_ORIGINS))
+
 
 # Application definition
 INSTALLED_APPS = [

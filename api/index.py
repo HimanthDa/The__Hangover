@@ -53,7 +53,25 @@ def _vercel_bootstrap():
     except Exception as e:
         print(f'[vercel] seed error: {e}')
 
+    # Auto-create Superuser Admin for Vercel deployment
+    try:
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        if not User.objects.filter(username='admin').exists():
+            User.objects.create_superuser('admin', 'admin@thehangover.com', 'ChangeMe123!')
+            print('[vercel] Superuser admin created')
+        else:
+            admin_user = User.objects.get(username='admin')
+            admin_user.set_password('ChangeMe123!')
+            admin_user.is_staff = True
+            admin_user.is_superuser = True
+            admin_user.save()
+            print('[vercel] Superuser admin updated')
+    except Exception as e:
+        print(f'[vercel] admin creation error: {e}')
+
     # Collect static files if not done yet
+
     try:
         static_root = Path('/tmp/staticfiles')
         if not static_root.exists():
