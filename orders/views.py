@@ -178,20 +178,8 @@ def checkout(request):
                 items, subtotal, total, form_data, contains_wine, date_of_birth_raw
             ))
 
-        if contains_wine:
-            age = calculate_age(effective_date_of_birth)
-            if age is None:
-                messages.error(request, 'Date of birth is required to buy wine products.')
-                return render(request, 'orders/checkout.html', _checkout_context(
-                    items, subtotal, total, form_data, contains_wine, date_of_birth_raw
-                ))
-            if age < 18:
-                messages.error(request, 'You must be 18 or older to buy wine products.')
-                return render(request, 'orders/checkout.html', _checkout_context(
-                    items, subtotal, total, form_data, contains_wine, date_of_birth_raw
-                ))
-
         session_key = getattr(request.session, 'session_key', None) or 'guest'
+
 
         try:
             if effective_date_of_birth:
@@ -355,10 +343,6 @@ def add_order_to_cart(request, order_id):
     added_count = 0
     skipped_count = 0
     for item in order.items.all():
-        if item.product and item.product.is_wine and _known_underage_for_wine(request.user):
-            skipped_count += item.quantity
-            continue
-
         if item.product and item.product.in_stock:
             if add_to_cart(request, item.product.id, item.quantity):
                 added_count += item.quantity
@@ -366,6 +350,7 @@ def add_order_to_cart(request, order_id):
                 skipped_count += item.quantity
         else:
             skipped_count += item.quantity
+
 
     if added_count:
         messages.success(request, f'Added {added_count} item(s) from order #{order.id} to your cart.')

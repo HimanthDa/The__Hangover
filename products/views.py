@@ -5,18 +5,8 @@ Supports individual and combined category pages.
 
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
-from django.http import JsonResponse
 from .models import Product, Category
 
-
-def is_age_verified(request):
-    """Bypassed helper for backwards compatibility."""
-    return True
-
-
-def verify_age(request):
-    """Endpoint kept for backwards compatibility."""
-    return JsonResponse({'status': 'success', 'verified': True})
 
 
 def product_list(request, category_slug=None):
